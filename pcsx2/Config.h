@@ -863,7 +863,6 @@ struct Pcsx2Config
 		bool EthEnable{true};
 		NetApi EthApi{NetApi::Sockets};
 		std::string EthDevice{"Auto"};
-		bool EthLogDHCP{false};
 		bool EthLogDNS{false};
 
 		bool InterceptDHCP{false};
