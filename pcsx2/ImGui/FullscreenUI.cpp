@@ -1252,14 +1252,22 @@ void FullscreenUI::DrawLandingWindow()
 	ImVec2 menu_pos, menu_size;
 	DrawLandingTemplate(&menu_pos, &menu_size);
 
-	ImGui::PushStyleColor(ImGuiCol_Text, UIBackgroundTextColor);
+	if (BeginFullscreenColumnWindow(0.0f, -710.0f, "logo", UIPrimaryDarkColor))
+	{
+		const float image_size = LayoutScale(700.f);
+		ImGui::SetCursorPos(
+			ImVec2((ImGui::GetWindowWidth() * 0.5f) - (image_size * 0.5f), (ImGui::GetWindowHeight() * 0.5f) - (image_size * 0.5f)));
+		ImGui::Image(s_app_icon_texture->GetNativeHandle(), ImVec2(image_size, image_size));
+	}
+	EndFullscreenColumnWindow();
 
 	if (BeginHorizontalMenu("landing_window", menu_pos, menu_size, 4))
 	{
 		ResetFocusHere();
 
-		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/game-list.png"), FSUI_CSTR("Game List"),
-				FSUI_CSTR("Launch a game from images scanned from your game directories.")))
+		BeginMenuButtons(5, 0.5f);
+
+		if (MenuButton(ICON_FA_LIST " Game List", "Launch a game from images scanned from your game directories."))
 		{
 			SwitchToGameList();
 		}
@@ -1337,14 +1345,14 @@ void FullscreenUI::DrawStartGameWindow()
 		{
 			DoStartBIOS();
 		}
-
 #ifndef WINRT_XBOX
 		if (MenuButton(ICON_FA_COMPACT_DISC " Start Disc", "Start a game from a disc in your PC's DVD drive."))
 		{
 			DoStartDisc();
 		}
-#endif
+#endif // !WINRT_XBOX
 		
+
 		if (MenuButton(ICON_FA_SLIDERS_H " Settings", "Change settings for the emulator."))
 			SwitchToSettings();
 
@@ -1418,17 +1426,16 @@ void FullscreenUI::DrawExitWindow()
 					ICON_FA_QUESTION_CIRCLE, 0.0f, 0.0f, -1.0f, -1.0f, 1.0f, 0.0f, true, g_large_font, &fullscreen_pos))
 				OpenAboutWindow();
 
-#ifndef WINRT_XBOX
 			if (FloatingButton(ICON_FA_LIGHTBULB, fullscreen_pos.x, 0.0f, -1.0f, -1.0f, -1.0f, 0.0f, true, g_large_font, &fullscreen_pos))
 				ToggleTheme();
 
-
+#ifndef WINRT_XBOX
 			if (FloatingButton(ICON_FA_WINDOW_CLOSE, fullscreen_pos.x, 0.0f, -1.0f, -1.0f, -1.0f, 0.0f, true, g_large_font, &fullscreen_pos))
 				DoRequestExit();
 
 			if (FloatingButton(ICON_FA_EXPAND, fullscreen_pos.x, 0.0f, -1.0f, -1.0f, -1.0f, 0.0f, true, g_large_font, &fullscreen_pos))
 				DoToggleFullscreen();
-#endif
+#endif // !WINRT_XBOX
 		}
 
 		EndMenuButtons();
@@ -3107,26 +3114,30 @@ void FullscreenUI::DrawInterfaceSettingsPage()
 
 	MenuHeading(FSUI_CSTR("Behaviour"));
 
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_PF_SNOOZE, "Inhibit Screensaver"),
-		FSUI_CSTR("Prevents the screen saver from activating and the host from sleeping while emulation is running."), "EmuCore",
-		"InhibitScreensaver", true);
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_USER_CIRCLE, "Enable Discord Presence"),
-		FSUI_CSTR("Shows the game you are currently playing as part of your profile on Discord."), "UI", "DiscordPresence", false);
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_PAUSE, "Pause On Start"), FSUI_CSTR("Pauses the emulator when a game is started."), "UI",
-		"StartPaused", false);
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_EYE, "Pause On Focus Loss"),
-		FSUI_CSTR("Pauses the emulator when you minimize the window or switch to another application, and unpauses when you switch back."),
-		"UI", "PauseOnFocusLoss", false);
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_GAMEPAD, "Pause On Controller Disconnection"),
-		FSUI_CSTR("Pauses the emulator when a controller with bindings is disconnected."), "UI", "PauseOnControllerDisconnection", false);
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_LIST_ALT, "Pause On Menu"),
-		FSUI_CSTR("Pauses the emulator when you open the quick menu, and unpauses when you close it."), "UI", "PauseOnMenu", true);
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_POWER_OFF, "Confirm Shutdown"),
-		FSUI_CSTR("Determines whether a prompt will be displayed to confirm shutting down the emulator/game when the hotkey is pressed."),
-		"UI", "ConfirmShutdown", true);
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_SAVE, "Save State On Shutdown"),
-		FSUI_CSTR("Automatically saves the emulator state when powering down or exiting. You can then resume directly from where you left "
-				  "off next time."),
+	
+#ifdef WITH_DISCORD_PRESENCE
+	DrawToggleSetting(bsi, "Enable Discord Presence", "Shows the game you are currently playing as part of your profile on Discord.", "UI",
+		"DiscordPresence", false);
+#endif
+	DrawToggleSetting(bsi, ICON_FA_PAUSE " Pause On Start", "Pauses the emulator when a game is started.", "UI", "StartPaused", false);
+
+#ifndef WINRT_XBOX
+	DrawToggleSetting(bsi, ICON_FA_MAGIC " Inhibit Screensaver",
+		"Prevents the screen saver from activating and the host from sleeping while emulation is running.", "EmuCore", "InhibitScreensaver",
+		true);
+	DrawToggleSetting(bsi, ICON_FA_VIDEO " Pause On Focus Loss",
+		"Pauses the emulator when you minimize the window or switch to another application, and unpauses when you switch back.", "UI",
+		"PauseOnFocusLoss", false);
+#endif
+
+	DrawToggleSetting(bsi, ICON_FA_WINDOW_MAXIMIZE " Pause On Menu",
+		"Pauses the emulator when you open the quick menu, and unpauses when you close it.", "UI", "PauseOnMenu", true);
+	DrawToggleSetting(bsi, ICON_FA_POWER_OFF " Confirm Shutdown",
+		"Determines whether a prompt will be displayed to confirm shutting down the emulator/game when the hotkey is pressed.", "UI",
+		"ConfirmShutdown", true);
+	DrawToggleSetting(bsi, ICON_FA_SAVE " Save State On Shutdown",
+		"Automatically saves the emulator state when powering down or exiting. You can then resume directly from where you left off next "
+		"time.",
 		"EmuCore", "SaveStateOnShutdown", false);
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_ARCHIVE, "Create Save State Backups"),
 		FSUI_CSTR("Creates a backup copy of a save state if it already exists when the save is created. The backup copy has a .backup suffix"),
@@ -4376,6 +4387,13 @@ void FullscreenUI::DrawControllerSettingsPage()
 		FSUI_CSTR("The XInput source provides support for XBox 360/XBox One/XBox Series controllers."), "InputSources", "XInput", false,
 		true, false);
 #endif
+#if defined(SDL_BUILD) && defined(_WIN32)
+	DrawToggleSetting(bsi, ICON_FA_COG " SDL Raw Input", "Allow SDL to use raw access to input devices.", "InputSources", "SDLRawInput",
+		false, bsi->GetBoolValue("InputSources", "SDL", true), false);
+#endif
+#if _WIN32 && !WINRT_XBOX
+	DrawToggleSetting(bsi, ICON_FA_COG " Enable XInput Input Source",
+		"The XInput source provides support for XBox 360/XBox One/XBox Series controllers.", "InputSources", "XInput", false, true, false);
 #endif
 
 	MenuHeading(FSUI_CSTR("Multitap"));
