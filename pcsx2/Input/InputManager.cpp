@@ -440,10 +440,14 @@ InputBindingKey InputManager::MakePointerAxisKey(u32 index, InputPointerAxis axi
 // ------------------------------------------------------------------------
 
 static std::array<const char*, static_cast<u32>(InputSourceType::Count)> s_input_class_names = {{
+#ifndef WINRT_XBOX
 	"Keyboard",
 	"Mouse",
+#endif
 #ifdef _WIN32
+#if !WINRT_XBOX
 	"DInput",
+#endif
 	"XInput",
 #endif
 #ifdef SDL_BUILD
@@ -465,14 +469,16 @@ bool InputManager::GetInputSourceDefaultEnabled(InputSourceType type)
 {
 	switch (type)
 	{
+#if !WINRT_XBOX
 		case InputSourceType::Keyboard:
 		case InputSourceType::Pointer:
 			return true;
-
+#endif
 #ifdef _WIN32
+#if !WINRT_XBOX
 		case InputSourceType::DInput:
 			return false;
-
+#endif
 		case InputSourceType::XInput:
 			// Disable xinput by default if we have SDL.
 #ifdef SDL_BUILD
@@ -1373,9 +1379,11 @@ void InputManager::PollSources()
 std::vector<std::pair<std::string, std::string>> InputManager::EnumerateDevices()
 {
 	std::vector<std::pair<std::string, std::string>> ret;
-
+	
+#ifndef WINRT_XBOX
 	ret.emplace_back("Keyboard", "Keyboard");
 	ret.emplace_back("Mouse", "Mouse");
+#endif
 
 	for (u32 i = FIRST_EXTERNAL_INPUT_SOURCE; i < LAST_EXTERNAL_INPUT_SOURCE; i++)
 	{
@@ -1504,7 +1512,9 @@ void InputManager::UpdateInputSourceState(SettingsInterface& si, std::unique_loc
 }
 
 #ifdef _WIN32
+#ifndef WINRT_XBOX
 #include "Input/DInputSource.h"
+#endif
 #include "Input/XInputSource.h"
 #endif
 
@@ -1515,7 +1525,9 @@ void InputManager::UpdateInputSourceState(SettingsInterface& si, std::unique_loc
 void InputManager::ReloadSources(SettingsInterface& si, std::unique_lock<std::mutex>& settings_lock)
 {
 #ifdef _WIN32
+#ifndef WINRT_XBOX
 	UpdateInputSourceState<DInputSource>(si, settings_lock, InputSourceType::DInput);
+#endif
 	UpdateInputSourceState<XInputSource>(si, settings_lock, InputSourceType::XInput);
 #endif
 #ifdef SDL_BUILD

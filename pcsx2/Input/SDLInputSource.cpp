@@ -1,3 +1,4 @@
+#if SDL_BUILD 
 /*  PCSX2 - PS2 Emulator for PCs
  *  Copyright (C) 2002-2023 PCSX2 Dev Team
  *
@@ -952,3 +953,4 @@ void SDLInputSource::SendRumbleUpdate(ControllerData* cd)
 			SDL_HapticRumbleStop(cd->haptic);
 	}
 }
+#endif
