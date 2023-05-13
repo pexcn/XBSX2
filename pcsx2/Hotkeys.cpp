@@ -152,10 +152,10 @@ DEFINE_HOTKEY("OpenLeaderboardsList", TRANSLATE_NOOP("Hotkeys", "System"),
 			FullscreenUI::OpenLeaderboardsWindow();
 	})
 #endif
-DEFINE_HOTKEY(
-	"TogglePause", TRANSLATE_NOOP("Hotkeys", "System"), TRANSLATE_NOOP("Hotkeys", "Toggle Pause"), [](s32 pressed) {
-		if (!pressed && VMManager::HasValidVM())
-			VMManager::SetPaused(VMManager::GetState() != VMState::Paused);
+		DEFINE_HOTKEY(
+			"TogglePause", TRANSLATE_NOOP("Hotkeys", "System"), TRANSLATE_NOOP("Hotkeys", "Toggle Pause"), [](s32 pressed) {
+				if (!pressed && VMManager::HasValidVM())
+					Host::RunOnCPUThread([]() { VMManager::SetPaused(VMManager::GetState() != VMState::Paused); });
 	})
 DEFINE_HOTKEY("ToggleFullscreen", TRANSLATE_NOOP("Hotkeys", "System"), TRANSLATE_NOOP("Hotkeys", "Toggle Fullscreen"),
 	[](s32 pressed) {
@@ -262,23 +262,23 @@ DEFINE_HOTKEY("NextSaveStateSlot", TRANSLATE_NOOP("Hotkeys", "Save States"),
 DEFINE_HOTKEY("SaveStateToSlot", TRANSLATE_NOOP("Hotkeys", "Save States"),
 	TRANSLATE_NOOP("Hotkeys", "Save State To Selected Slot"), [](s32 pressed) {
 		if (!pressed && VMManager::HasValidVM())
-			VMManager::SaveStateToSlot(s_current_save_slot);
+			Host::RunOnCPUThread([]() { VMManager::SaveStateToSlot(s_current_save_slot); });
 	})
-DEFINE_HOTKEY("LoadStateFromSlot", TRANSLATE_NOOP("Hotkeys", "Save States"),
-	TRANSLATE_NOOP("Hotkeys", "Load State From Selected Slot"), [](s32 pressed) {
+		DEFINE_HOTKEY("LoadStateFromSlot", TRANSLATE_NOOP("Hotkeys", "Save States"),
+			TRANSLATE_NOOP("Hotkeys", "Load State From Selected Slot"), [](s32 pressed) {
 		if (!pressed && VMManager::HasValidVM())
-			HotkeyLoadStateSlot(s_current_save_slot);
+			Host::RunOnCPUThread([]() { HotkeyLoadStateSlot(s_current_save_slot); });
 	})
 
 #define DEFINE_HOTKEY_SAVESTATE_X(slotnum, title) \
 	DEFINE_HOTKEY("SaveStateToSlot" #slotnum, "Save States", title, [](s32 pressed) { \
 		if (!pressed) \
-			HotkeySaveStateSlot(slotnum); \
+			Host::RunOnCPUThread([]() { HotkeySaveStateSlot(slotnum); }); \
 	})
 #define DEFINE_HOTKEY_LOADSTATE_X(slotnum, title) \
 	DEFINE_HOTKEY("LoadStateFromSlot" #slotnum, "Save States", title, [](s32 pressed) { \
 		if (!pressed) \
-			HotkeyLoadStateSlot(slotnum); \
+			Host::RunOnCPUThread([]() { HotkeyLoadStateSlot(slotnum); }); \
 	})
 DEFINE_HOTKEY_SAVESTATE_X(1, TRANSLATE_NOOP("Hotkeys", "Save State To Slot 1"))
 DEFINE_HOTKEY_LOADSTATE_X(1, TRANSLATE_NOOP("Hotkeys", "Load State From Slot 1"))
