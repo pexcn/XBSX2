@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2002-2024 PCSX2 Dev Team
 // SPDX-License-Identifier: LGPL-3.0+
+#if !WINRT_XBOX
 
+#include "PrecompiledHeader.h"
 #define INITGUID
 
 #include "Input/DInputSource.h"
@@ -467,3 +469,5 @@ void DInputSource::CheckForStateChanges(size_t index, const DIJOYSTATE2& new_sta
 		}
 	}
 }
+
+#endif

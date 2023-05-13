@@ -1041,3 +1041,4 @@ void SDLInputSource::SendRumbleUpdate(ControllerData* cd)
 			SDL_HapticRumbleStop(cd->haptic);
 	}
 }
+#endif
