@@ -3120,14 +3120,46 @@ void FullscreenUI::DrawInterfaceSettingsPage()
 		ImGuiFullscreen::SetTheme(bsi->GetBoolValue("UI", "UseLightFullscreenUITheme", false));
 	}
 
-	MenuHeading(FSUI_CSTR("Game Display"));
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_TV, "Start Fullscreen"),
-		FSUI_CSTR("Automatically switches to fullscreen mode when a game is started."), "UI", "StartFullscreen", false);
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_MOUSE, "Double-Click Toggles Fullscreen"),
-		FSUI_CSTR("Switches between full screen and windowed when the window is double-clicked."), "UI", "DoubleClickTogglesFullscreen",
-		true);
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_MOUSE_POINTER, "Hide Cursor In Fullscreen"),
-		FSUI_CSTR("Hides the mouse pointer/cursor when the emulator is in fullscreen mode."), "UI", "HideMouseCursor", false);
+#ifndef WINRT_XBOX
+	MenuHeading("Game Display");
+	DrawToggleSetting(bsi, ICON_FA_TV " Start Fullscreen", "Automatically switches to fullscreen mode when the program is started.", "UI",
+		"StartFullscreen", false);
+	DrawToggleSetting(bsi, ICON_FA_MOUSE " Double-Click Toggles Fullscreen",
+		"Switches between full screen and windowed when the window is double-clicked.", "UI", "DoubleClickTogglesFullscreen", true);
+	DrawToggleSetting(bsi, ICON_FA_MOUSE_POINTER " Hide Cursor In Fullscreen",
+		"Hides the mouse pointer/cursor when the emulator is in fullscreen mode.", "UI", "HideMouseCursor", false);
+#endif
+	MenuHeading("On-Screen Display");
+	DrawIntSpinBoxSetting(bsi, ICON_FA_SEARCH " OSD Scale", "Determines how large the on-screen messages and monitor are.", "EmuCore/GS",
+		"OsdScale", 100, 25, 500, 25, "%d%%");
+	DrawToggleSetting(bsi, ICON_FA_LIST " Show Messages",
+		"Shows on-screen-display messages when events occur such as save states being created/loaded, screenshots being taken, etc.",
+		"EmuCore/GS", "OsdShowMessages", true);
+	DrawToggleSetting(bsi, ICON_FA_CLOCK " Show Speed",
+		"Shows the current emulation speed of the system in the top-right corner of the display as a percentage.", "EmuCore/GS",
+		"OsdShowSpeed", false);
+	DrawToggleSetting(bsi, ICON_FA_RULER " Show FPS",
+		"Shows the number of video frames (or v-syncs) displayed per second by the system in the top-right corner of the display.",
+		"EmuCore/GS", "OsdShowFPS", false);
+	DrawToggleSetting(bsi, ICON_FA_BATTERY_HALF " Show CPU Usage",
+		"Shows the CPU usage based on threads in the top-right corner of the display.", "EmuCore/GS", "OsdShowCPU", false);
+	DrawToggleSetting(bsi, ICON_FA_SPINNER " Show GPU Usage", "Shows the host's GPU usage in the top-right corner of the display.",
+		"EmuCore/GS", "OsdShowGPU", false);
+	DrawToggleSetting(bsi, ICON_FA_RULER_VERTICAL " Show Resolution",
+		"Shows the resolution the game is rendering at in the top-right corner of the display.", "EmuCore/GS", "OsdShowResolution", false);
+	DrawToggleSetting(bsi, ICON_FA_BARS " Show GS Statistics",
+		"Shows statistics about GS (primitives, draw calls) in the top-right corner of the display.", "EmuCore/GS", "OsdShowGSStats",
+		false);
+	DrawToggleSetting(bsi, ICON_FA_PLAY " Show Status Indicators",
+		"Shows indicators when fast forwarding, pausing, and other abnormal states are active.", "EmuCore/GS", "OsdShowIndicators", true);
+	DrawToggleSetting(bsi, ICON_FA_SLIDERS_H " Show Settings", "Shows the current configuration in the bottom-right corner of the display.",
+		"EmuCore/GS", "OsdShowSettings", false);
+	DrawToggleSetting(bsi, ICON_FA_GAMEPAD " Show Inputs",
+		"Shows the current controller state of the system in the bottom-left corner of the display.", "EmuCore/GS", "OsdShowInputs", false);
+	DrawToggleSetting(bsi, ICON_FA_RULER_HORIZONTAL " Show Frame Times",
+		"Shows a visual history of frame times in the upper-left corner of the display.", "EmuCore/GS", "OsdShowFrameTimes", false);
+	DrawToggleSetting(bsi, ICON_FA_EXCLAMATION_CIRCLE " Warn About Unsafe Settings",
+		"Displays warnings when settings are enabled which may break games.", "EmuCore", "WarnAboutUnsafeSettings", true);
 
 	MenuHeading(FSUI_CSTR("On-Screen Display"));
 	DrawIntSpinBoxSetting(bsi, FSUI_ICONSTR(ICON_FA_SEARCH, "OSD Scale"),
