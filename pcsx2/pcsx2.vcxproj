@@ -98,6 +98,8 @@
     <None Include="..\bin\resources\shaders\dx11\tfx.fx" />
     <None Include="..\bin\resources\shaders\dx11\imgui.fx" />
     <None Include="..\bin\resources\shaders\dx11\present.fx" />
+    <None Include="packages.config" />
+    <None Include="Utilities\folderdesc.txt" />
     <None Include="GS\Renderers\Vulkan\VKEntryPoints.inl">
       <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
     </None>

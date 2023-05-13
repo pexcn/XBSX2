@@ -547,6 +547,14 @@ static std::array<const char*, static_cast<u32>(InputSourceType::Count)> s_input
 #ifndef WINRT_XBOX
 	"Keyboard",
 	"Mouse",
+#endif
+#ifdef _WIN32
+#if !WINRT_XBOX
+	"DInput",
+#endif
+	"XInput",
+#endif
+#ifdef SDL_BUILD
 	"SDL",
 #ifdef _WIN32
 #ifndef WINRT_XBOX
@@ -570,9 +578,26 @@ bool InputManager::GetInputSourceDefaultEnabled(InputSourceType type)
 {
 	switch (type)
 	{
-#ifndef WINRT_XBOX
+#if !WINRT_XBOX
 		case InputSourceType::Keyboard:
 		case InputSourceType::Pointer:
+			return true;
+#endif
+#ifdef _WIN32
+#if !WINRT_XBOX
+		case InputSourceType::DInput:
+			return false;
+#endif
+		case InputSourceType::XInput:
+			// Disable xinput by default if we have SDL.
+#ifdef SDL_BUILD
+			return false;
+#else
+			return true;
+#endif
+#endif
+
+#ifdef SDL_BUILD
 		case InputSourceType::SDL:
 			return true;
 #endif
@@ -1618,6 +1643,14 @@ void InputManager::UpdateInputSourceState(SettingsInterface& si, std::unique_loc
 	}
 }
 
+#ifdef _WIN32
+#ifndef WINRT_XBOX
+#include "Input/DInputSource.h"
+#endif
+#include "Input/XInputSource.h"
+#endif
+
+#ifdef SDL_BUILD
 #include "Input/SDLInputSource.h"
 
 #ifdef _WIN32

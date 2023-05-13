@@ -48,7 +48,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)common\vsprops\common.props" />
     <Import Project="$(SolutionDir)common\vsprops\BaseProperties.props" />
-    <Import Project="$(SolutionDir)common\vsprops\CommonLibrary.props" />
+    <Import Project="$(SolutionDir)common\vsprops\3rdpartyDeps.props" />
     <Import Condition="$(Configuration.Contains(Debug))" Project="$(SolutionDir)common\vsprops\CodeGen_Debug.props" />
     <Import Condition="$(Configuration.Contains(Devel))" Project="$(SolutionDir)common\vsprops\CodeGen_Devel.props" />
     <Import Condition="$(Configuration.Contains(Release))" Project="$(SolutionDir)common\vsprops\CodeGen_Release.props" />
@@ -56,27 +56,25 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
-    <AppxBundle>Never</AppxBundle>
+    <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <PackageCertificateKeyFile>pcsx2-winrt_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\fmt\fmt\include;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\libpng;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\rapidyaml\rapidyaml\ext\c4core\src\c4\ext\fast_float\include;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\simpleini\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\xbyak;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\xz\xz\src\liblzma\api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\libpng;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\simpleini\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\rapidyaml\rapidyaml\ext\c4core\src\c4\ext\fast_float\include;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)pcsx2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- Needed for moc pch -->
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)\Settings;$(ProjectDir)\GameList</AdditionalIncludeDirectories>
@@ -84,12 +82,13 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>PrecompiledHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pcsx2.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;LZMA_API_STATIC;BUILD_DX=1;ENABLE_RAINTEGRATION;ENABLE_ACHIEVEMENTS;DIRECTINPUT_VERSION=0x0800;PCSX2_CORE;WINRT_XBOX;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;LZMA_API_STATIC;BUILD_DX=1;ENABLE_RAINTEGRATION;ENABLE_ACHIEVEMENTS;DIRECTINPUT_VERSION=0x0800;PCSX2_CORE;WINRT_XBOX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="$(Configuration.Contains(Debug))">PCSX2_DEBUG;PCSX2_DEVBUILD;_SECURE_SCL_=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="$(Configuration.Contains(Devel))">PCSX2_DEVEL;PCSX2_DEVBUILD;NDEBUG;_SECURE_SCL_=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="$(Configuration.Contains(Release))">NDEBUG;_SECURE_SCL_=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="!$(Configuration.Contains(AVX2))">_M_SSE=0x401;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="$(Configuration.Contains(AVX2))">_M_SSE=0x501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet Condition="!$(Configuration.Contains(AVX2)) Or $(Configuration.Contains(Clang))">AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <EnableEnhancedInstructionSet Condition="$(Configuration.Contains(AVX2)) And !$(Configuration.Contains(Clang))">AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <AdditionalOptions Condition="$(Configuration.Contains(Clang)) And !$(Configuration.Contains(AVX2))"> -march=nehalem %(AdditionalOptions)</AdditionalOptions>
@@ -141,7 +140,7 @@
     <ProjectReference Include="$(SolutionDir)common\common.vcxproj">
       <Project>{4639972e-424e-4e13-8b07-ca403c481346}</Project>
     </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)pcsx2\pcsx2.vcxproj">
+    <ProjectReference Include="$(SolutionDir)pcsx2\pcsx2core.vcxproj">
       <Project>{6c7986c4-3e4d-4dcc-b3c6-6bb12b238995}</Project>
     </ProjectReference>
     <ProjectReference Include="$(SolutionDir)3rdparty\glad\glad.vcxproj">
@@ -162,49 +161,32 @@
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
-      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;ENABLE_ACHIEVEMENTS;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)' == 'Release' or '$(Configuration)' == 'Release AVX2'">
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;ENABLE_ACHIEVEMENTS;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
-    <PreBuildEvent>
-      <Command>
-			mkdir resources
-			robocopy "..\bin\resources\." "resources\." /E /R:0 /W:0
-			EXIT 0
-      </Command>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\pcsx2\PrecompiledHeader.h" />
+    <Text Include="resources\shaders\common\ffx_a.h">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="resources\shaders\common\ffx_cas.h">
+      <FileType>Document</FileType>
+    </Text>
     <ClInclude Include="UWPUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\pcsx2\PrecompiledHeader.cpp" />
-    <ClCompile Include="App.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-    <None Include="pcsx2-winrt_TemporaryKey.pfx" />
-    <None Include="PropertySheet.props" />
-    <None Include="resources\fonts\Roboto-Regular-copyright" />
-    <None Include="resources\GameIndex.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\patches.zip">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\LockScreenLogo.scale-200.png" />
@@ -214,7 +196,9 @@
     <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Image Include="Assets\StoreLogo.png" />
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
-    <Image Include="resources\cover-placeholder.png" />
+    <Image Include="resources\cover-placeholder.png">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
     <Image Include="resources\fullscreenui\applications-system.png" />
     <Image Include="resources\fullscreenui\media-cdrom.png" />
     <Image Include="resources\fullscreenui\placeholder.png" />
@@ -256,57 +240,85 @@
     <Image Include="resources\icons\star-5.png" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="resources\game_controller_db.txt" />
+    <ClCompile Include="..\pcsx2\PrecompiledHeader.cpp" />
+    <ClCompile Include="App.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="pcsx2-winrt_TemporaryKey.pfx" />
+    <None Include="PropertySheet.props" />
+    <None Include="resources\cheats_ni.zip">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="resources\cheats_ws.zip">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="resources\fonts\Roboto-Regular-copyright">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="resources\GameIndex.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <Text Include="readme.txt">
+      <DeploymentContent>false</DeploymentContent>
+    </Text>
+    <Text Include="resources\game_controller_db.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </Text>
     <Text Include="resources\sounds\achievements\README.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Font Include="resources\fonts\fa-solid-900.ttf" />
-    <Font Include="resources\fonts\Roboto-Regular.ttf" />
-    <Font Include="resources\fonts\RobotoMono-Medium.ttf" />
+    <Media Include="resources\sounds\achievements\lbsubmit.wav" />
+    <Media Include="resources\sounds\achievements\message.wav" />
+    <Media Include="resources\sounds\achievements\unlock.wav" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\common\fxaa.fx">
+    <Text Include="resources\shaders\common\fxaa.fx">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="resources\shaders\dx11\cas.hlsl">
       <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\shaders\common\ffx_a.h">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="resources\shaders\dx11\convert.fx">
       <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\shaders\common\ffx_cas.h">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="resources\shaders\dx11\imgui.fx">
       <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\shaders\dx11\cas.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="resources\shaders\dx11\interlace.fx">
       <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\shaders\dx11\convert.fx">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="resources\shaders\dx11\merge.fx">
       <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\shaders\dx11\imgui.fx">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="resources\shaders\dx11\present.fx">
       <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\shaders\dx11\interlace.fx">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="resources\shaders\dx11\shadeboost.fx">
       <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\shaders\dx11\merge.fx">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="resources\shaders\dx11\tfx.fx">
       <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\shaders\dx11\present.fx">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="resources\fonts\fa-solid-900.ttf">
       <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\shaders\dx11\shadeboost.fx">
+    </Font>
+    <Font Include="resources\fonts\Roboto-Regular.ttf">
       <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\shaders\dx11\tfx.fx">
+    </Font>
+    <Font Include="resources\fonts\RobotoMono-Medium.ttf">
       <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\sounds\achievements\lbsubmit.wav">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\sounds\achievements\message.wav">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
-    <None Include="resources\sounds\achievements\unlock.wav">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
+    </Font>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
