@@ -1338,6 +1338,8 @@ void FullscreenUI::DrawStartGameWindow()
 		{
 			DoStartDisc();
 		}
+#endif // !WINRT_XBOX
+		
 
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/start-bios.png"), FSUI_CSTR("Start BIOS"),
 				FSUI_CSTR("Start the console without any disc inserted.")))
@@ -4281,7 +4283,7 @@ void FullscreenUI::DrawControllerSettingsPage()
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_LIGHTBULB, "SDL DualSense Player LED"),
 		FSUI_CSTR("Enable/Disable the Player LED on DualSense controllers."), "InputSources", "SDLPS5PlayerLED", false,
 		bsi->GetBoolValue("InputSources", "SDLControllerEnhancedMode", true), false);
-#ifdef _WIN32
+#ifdef _WIN32 && !WINRT_XBOX
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_COG, "SDL Raw Input"), FSUI_CSTR("Allow SDL to use raw access to input devices."),
 		"InputSources", "SDLRawInput", false, bsi->GetBoolValue("InputSources", "SDL", true), false);
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_COG, "Enable XInput Input Source"),
@@ -6148,9 +6150,9 @@ void FullscreenUI::DrawGameGrid(const ImVec2& heading_size)
 
 	const ImGuiStyle& style = ImGui::GetStyle();
 
-	const float title_spacing = LayoutScale(10.0f);
-	const float item_spacing = LayoutScale(20.0f);
-	const float item_width_with_spacing = std::floor(LayoutScale(LAYOUT_SCREEN_WIDTH / 5.0f));
+	const float title_spacing = LayoutScale(5.0f);
+	const float item_spacing = LayoutScale(10.0f);
+	const float item_width_with_spacing = std::floor(LayoutScale(LAYOUT_SCREEN_WIDTH / 7.5f));
 	const float item_width = item_width_with_spacing - item_spacing;
 	const float image_width = item_width - (style.FramePadding.x * 2.0f);
 	const float image_height = image_width * 1.33f;
