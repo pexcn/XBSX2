@@ -1133,14 +1133,14 @@ void FullscreenUI::DrawLandingWindow()
 		{
 			DoStartBIOS();
 		}
+
 #ifndef WINRT_XBOX
 		if (MenuButton(ICON_FA_COMPACT_DISC " Start Disc", "Start a game from a disc in your PC's DVD drive."))
 		{
 			DoStartDisc();
 		}
-#endif // !WINRT_XBOX
+#endif
 		
-
 		if (MenuButton(ICON_FA_SLIDERS_H " Settings", "Change settings for the emulator."))
 			SwitchToSettings();
 
