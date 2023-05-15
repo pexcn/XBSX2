@@ -1333,19 +1333,20 @@ void FullscreenUI::DrawStartGameWindow()
 			DoStartFile();
 		}
 
-		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/drive-cdrom.png"), FSUI_CSTR("Start Disc"),
-				FSUI_CSTR("Start a game from a disc in your PC's DVD drive.")))
-		{
-			DoStartDisc();
-		}
-#endif // !WINRT_XBOX
-		
-
-		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/start-bios.png"), FSUI_CSTR("Start BIOS"),
-				FSUI_CSTR("Start the console without any disc inserted.")))
+		if (MenuButton(ICON_FA_TOOLBOX " Start BIOS", "Start the console without any disc inserted."))
 		{
 			DoStartBIOS();
 		}
+
+#ifndef WINRT_XBOX
+		if (MenuButton(ICON_FA_COMPACT_DISC " Start Disc", "Start a game from a disc in your PC's DVD drive."))
+		{
+			DoStartDisc();
+		}
+#endif
+		
+		if (MenuButton(ICON_FA_SLIDERS_H " Settings", "Change settings for the emulator."))
+			SwitchToSettings();
 
 		// https://www.iconpacks.net/free-icon/arrow-back-3783.html
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/back-icon.png"), FSUI_CSTR("Back"),
