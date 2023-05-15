@@ -6685,7 +6685,10 @@ void FullscreenUI::DrawAboutWindow()
 		ImGui::NewLine();
 
 		ImGui::TextWrapped(
-			"XBSX2.0 is a fork of PCSX2 developed by SirMangler introducing Xbox/UWP support. Please support the original creators." 
+			"XBSX2.0 is a fork of PCSX2 developed by SirMangler, TRW and Reverie introducing Xbox/UWP support. Please support the original creators.");
+		ImGui::NewLine();
+
+		ImGui::TextWrapped(
 			"PCSX2 is a free and open-source PlayStation 2 (PS2) emulator. Its purpose is to emulate the PS2's hardware, using a "
 			"combination of MIPS CPU Interpreters, Recompilers and a Virtual Machine which manages hardware states and PS2 system memory. "
 			"This allows you to play PS2 games on your PC, with many additional features and benefits.");
@@ -6706,10 +6709,7 @@ void FullscreenUI::DrawAboutWindow()
 		if (ActiveButton(ICON_FA_PERSON_BOOTH " Discord", false))
 			ExitFullscreenAndOpenURL(PCSX2_DISCORD_URL);
 
-		if (ActiveButton(ICON_FA_PERSON_BOOTH " Support Forums", false))
-			ExitFullscreenAndOpenURL(PCSX2_FORUMS_URL);
-
-		if (ActiveButton(ICON_FA_BUG " PCSX2 GitHub Repository", false))
+		if (ActiveButton(ICON_FA_BUG " XBSX2.0 GitHub Repository", false))
 			ExitFullscreenAndOpenURL(PCSX2_GITHUB_URL);
 
 		if (ActiveButton(FSUI_ICONSTR(ICON_FA_NEWSPAPER, "License"), false))
