@@ -4000,7 +4000,22 @@ void FullscreenUI::DrawGraphicsSettingsPage(SettingsInterface* bsi, bool show_ad
 		DrawToggleSetting(bsi, FSUI_CSTR("Disable Vertex Shader Expand"), FSUI_CSTR("Falls back to the CPU for expanding sprites/lines."),
 			"EmuCore/GS", "DisableVertexShaderExpand", false);
 	}
-
+	DrawIntListSetting(bsi, "Allow Exclusive Fullscreen",
+		"Overrides the driver's heuristics for enabling exclusive fullscreen, or direct flip/scanout.", "EmuCore/GS",
+		"ExclusiveFullscreenControl", -1, s_generic_options, std::size(s_generic_options), -1,
+		(renderer == GSRendererType::Auto || renderer == GSRendererType::VK));
+	DrawIntListSetting(bsi, "Override Texture Barriers", "Forces texture barrier functionality to the specified value.", "EmuCore/GS",
+		"OverrideTextureBarriers", -1, s_generic_options, std::size(s_generic_options), -1);
+	DrawIntListSetting(bsi, "GS Dump Compression", "Sets the compression algorithm for GS dumps.", "EmuCore/GS", "GSDumpCompression",
+		static_cast<int>(GSDumpCompressionMethod::LZMA), s_gsdump_compression, std::size(s_gsdump_compression));
+	DrawToggleSetting(bsi, "Disable Framebuffer Fetch", "Prevents the usage of framebuffer fetch when supported by host GPU.", "EmuCore/GS",
+		"DisableFramebufferFetch", false);
+	DrawToggleSetting(bsi, "Disable Dual-Source Blending", "Prevents the usage of dual-source blending when supported by host GPU.",
+		"EmuCore/GS", "DisableDualSourceBlend", false);
+	DrawToggleSetting(bsi, "Disable Shader Cache", "Prevents the loading and saving of shaders/pipelines to disk.", "EmuCore/GS",
+		"DisableShaderCache", false);
+	DrawToggleSetting(bsi, "Disable Vertex Shader Expand", "Falls back to the CPU for expanding sprites/lines.", "EmuCore/GS",
+		"DisableVertexShaderExpand", false);
 	EndMenuButtons();
 }
 
