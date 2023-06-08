@@ -40,7 +40,9 @@ static constexpr FPControlRegister DEFAULT_VU_FP_CONTROL_REGISTER = FPControlReg
 																		.SetRoundMode(FPRoundMode::ChopZero);
 
 Pcsx2Config EmuConfig;
-
+#ifdef WINRT_XBOX
+#include "pcsx2-winrt/UWPUtils.h"
+#endif
 const char* SettingInfo::StringDefaultValue() const
 {
 	return default_value ? default_value : "";
@@ -1881,15 +1883,21 @@ bool EmuFolders::SetDataDirectory(Error* error)
 {
 	if (!ShouldUsePortableMode())
 	{
-#if defined(_WIN32)
-		// On Windows, use My Documents\PCSX2 to match old installs.
-		PWSTR documents_directory;
-		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &documents_directory)))
-		{
-			if (std::wcslen(documents_directory) > 0)
-				DataRoot = Path::Combine(StringUtil::WideStringToUTF8String(documents_directory), "PCSX2");
-			CoTaskMemFree(documents_directory);
-		}
+		DataRoot = AppRoot;
+		return;
+	}
+
+#if defined(WINRT_XBOX)
+	EmuFolders::DataRoot = UWP::GetLocalFolder();
+#elif defined(_WIN32)
+	// On Windows, use My Documents\PCSX2 to match old installs.
+	PWSTR documents_directory;
+	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &documents_directory)))
+	{
+		if (std::wcslen(documents_directory) > 0)
+			DataRoot = Path::Combine(StringUtil::WideStringToUTF8String(documents_directory), "PCSX2");
+		CoTaskMemFree(documents_directory);
+	}
 #elif defined(__linux__) || defined(__FreeBSD__)
 		// Use $XDG_CONFIG_HOME/PCSX2 if it exists.
 		const char* xdg_config_home = getenv("XDG_CONFIG_HOME");

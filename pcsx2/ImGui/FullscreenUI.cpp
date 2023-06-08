@@ -1434,10 +1434,9 @@ void FullscreenUI::DrawExitWindow()
 		EndMenuButtons();
 
 		const char warning_txt[] = "XBSX2.0 is an unofficial fork of PCSX2. Please do not contact PCSX2 for any help with Xbox/XBSX2 related issues.";
-		const ImVec2 rev_size(g_medium_font->CalcTextSizeA(g_medium_font->FontSize, FLT_MAX, 0.0f, warning_txt));
 		ImGui::PushFont(g_medium_font);
 		ImGui::SetCursorPos(
-			ImVec2(LayoutScale(10.0f), ImGui::GetWindowHeight() - rev_size.y - LayoutScale(20.0f)));
+			ImVec2(LayoutScale(10.0f), ImGui::GetWindowHeight() - LayoutScale(20.0f)));
 		ImGui::Text(warning_txt);
 		ImGui::PopFont();
 	}
@@ -4358,7 +4357,7 @@ void FullscreenUI::DrawControllerSettingsPage()
 	{
 		DoSaveInputProfile();
 	}
-
+#ifndef WINRT_XBOX
 	MenuHeading(FSUI_CSTR("Input Sources"));
 
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_COG, "Enable SDL Input Source"),
@@ -4375,6 +4374,7 @@ void FullscreenUI::DrawControllerSettingsPage()
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_COG, "Enable XInput Input Source"),
 		FSUI_CSTR("The XInput source provides support for XBox 360/XBox One/XBox Series controllers."), "InputSources", "XInput", false,
 		true, false);
+#endif
 #endif
 
 	MenuHeading(FSUI_CSTR("Multitap"));
