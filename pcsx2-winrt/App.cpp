@@ -38,6 +38,7 @@
 #include "pcsx2/ImGui/ImGuiManager.h"
 #include "pcsx2/Input/InputManager.h"
 #include "pcsx2/LogSink.h"
+#include "pcsx2/GS.h"
 #include "pcsx2/GS/GS.h"
 #include "pcsx2/GSDumpReplayer.h"
 #include "pcsx2/Host.h"
@@ -75,7 +76,7 @@ namespace WinRTHost
 	static bool InitializeConfig();
 	static std::optional<WindowInfo> GetPlatformWindowInfo();
 	static void ProcessEventQueue();
-} // namespace GSRunner
+} // namespace WinRTHost
 
 static std::unique_ptr<INISettingsInterface> s_settings_interface;
 alignas(16) static SysMtgsThread s_mtgs_thread;
@@ -86,7 +87,7 @@ END_HOTKEY_LIST()
 
 bool WinRTHost::InitializeConfig()
 {
-	if (!CommonHost::InitializeCriticalFolders())
+	if (!EmuFolders::InitializeCriticalFolders())
 		return false;
 
 	const std::string path(Path::Combine(EmuFolders::Settings, "PCSX2.ini"));
@@ -94,16 +95,16 @@ bool WinRTHost::InitializeConfig()
 	s_settings_interface = std::make_unique<INISettingsInterface>(std::move(path));
 	Host::Internal::SetBaseSettingsLayer(s_settings_interface.get());
 
-	if (!s_settings_interface->Load() || !CommonHost::CheckSettingsVersion())
+	if (!s_settings_interface->Load() || !VMManager::Internal::CheckSettingsVersion())
 	{
-		CommonHost::SetDefaultSettings(*s_settings_interface, true, true, true, true, true);
+		VMManager::SetDefaultSettings(*s_settings_interface, true, true, true, true, true);
 
 		auto lock = Host::GetSettingsLock();
 		if (!s_settings_interface->Save())
 			Console.Error("Failed to save settings.");
 	}
 
-	CommonHost::LoadStartupSettings();
+	VMManager::Internal::LoadStartupSettings();
 	return true;
 }
 
@@ -116,19 +117,17 @@ void Host::CommitBaseSettingChanges()
 
 void Host::LoadSettings(SettingsInterface& si, std::unique_lock<std::mutex>& lock)
 {
-	CommonHost::LoadSettings(si, lock);
 }
 
 void Host::CheckForSettingsChanges(const Pcsx2Config& old_config)
 {
-	CommonHost::CheckForSettingsChanges(old_config);
 }
 
 bool Host::RequestResetSettings(bool folders, bool core, bool controllers, bool hotkeys, bool ui)
 {
 	{
 		auto lock = Host::GetSettingsLock();
-		CommonHost::SetDefaultSettings(*s_settings_interface.get(), folders, core, controllers, hotkeys, ui);
+		VMManager::SetDefaultSettings(*s_settings_interface.get(), folders, core, controllers, hotkeys, ui);
 	}
 
 	Host::CommitBaseSettingChanges();
@@ -252,7 +251,7 @@ void Host::ReleaseRenderWindow()
 
 void Host::BeginPresentFrame()
 {
-	CommonHost::CPUThreadVSync();
+	VMManager::Internal::VSyncOnCPUThread;
 }
 
 void Host::RequestResizeHostDisplay(s32 width, s32 height)
@@ -261,33 +260,27 @@ void Host::RequestResizeHostDisplay(s32 width, s32 height)
 
 void Host::OnVMStarting()
 {
-	CommonHost::OnVMStarting();
 }
 
 void Host::OnVMStarted()
 {
-	CommonHost::OnVMStarted();
 }
 
 void Host::OnVMDestroyed()
 {
-	CommonHost::OnVMDestroyed();
 }
 
 void Host::OnVMPaused()
 {
-	CommonHost::OnVMPaused();
 }
 
 void Host::OnVMResumed()
 {
-	CommonHost::OnVMResumed();
 }
 
 void Host::OnGameChanged(const std::string& disc_path, const std::string& elf_override, const std::string& game_serial,
 	const std::string& game_name, u32 game_crc)
 {
-	CommonHost::OnGameChanged(disc_path, elf_override, game_serial, game_name, game_crc);
 }
 
 void Host::OnPerformanceMetricsUpdated()
@@ -314,7 +307,7 @@ void Host::RunOnCPUThread(std::function<void()> function, bool block /* = false 
 
 void Host::RefreshGameListAsync(bool invalidate_cache)
 {
-	GetMTGS().RunOnGSThread([invalidate_cache]() {
+	s_gamescanner_thread = std::thread([invalidate_cache]() {
 		GameList::Refresh(invalidate_cache, false);
 	});
 }
@@ -399,7 +392,7 @@ std::optional<WindowInfo> WinRTHost::GetPlatformWindowInfo()
 	return wi;
 }
 
-void Host::CPUThreadVSync()
+void Host::VSyncOnCPUThread()
 {
 	WinRTHost::ProcessEventQueue();
 }
@@ -547,7 +540,7 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
 			[](const winrt::Windows::Foundation::IInspectable&,
 				const winrt::Windows::UI::Core::BackRequestedEventArgs& args) { args.Handled(true); });
 
-		CommonHost::CPUThreadInitialize();
+		VMManager::Internal::CPUThreadInitialize();
 
 		WinRTHost::ProcessEventQueue();
 		if (VMManager::GetState() != VMState::Running)
@@ -599,6 +592,7 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
 			else
 			{
 				WinRTHost::ProcessEventQueue();
+				InputManager::PollSources();
 			}
 
 			Sleep(1);
@@ -610,14 +604,14 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
 			auto asyncOperation = winrt::Windows::System::Launcher::LaunchUriAsync(m_uri);
 			asyncOperation.Completed([](winrt::Windows::Foundation::IAsyncOperation<bool> const& sender,
 										 winrt::Windows::Foundation::AsyncStatus const asyncStatus) {
-				CommonHost::CPUThreadShutdown();
+				VMManager::Internal::CPUThreadShutdown();
 				CoreApplication::Exit();
 				return;
 			});
 		}
 		else
 		{
-			CommonHost::CPUThreadShutdown();
+			VMManager::Internal::CPUThreadShutdown();
 			CoreApplication::Exit();
 		}
 	}

@@ -1259,6 +1259,14 @@ void FullscreenUI::DrawLandingWindow()
 			ImVec2((ImGui::GetWindowWidth() * 0.5f) - (image_size * 0.5f), (ImGui::GetWindowHeight() * 0.5f) - (image_size * 0.5f)));
 		ImGui::Image(s_app_icon_texture->GetNativeHandle(), ImVec2(image_size, image_size));
 	}
+
+	const char version_txt[] = "v2.0.2";
+	ImGui::PushFont(g_medium_font);
+	ImGui::SetCursorPos(
+		ImVec2(LayoutScale(10.0f), ImGui::GetWindowHeight() - LayoutScale(20.0f)));
+	ImGui::Text(version_txt);
+	ImGui::PopFont();
+
 	EndFullscreenColumnWindow();
 
 	if (BeginHorizontalMenu("landing_window", menu_pos, menu_size, 4))
@@ -1442,10 +1450,9 @@ void FullscreenUI::DrawExitWindow()
 		EndMenuButtons();
 
 		const char warning_txt[] = "XBSX2.0 is an unofficial fork of PCSX2. Please do not contact PCSX2 for any help with Xbox/XBSX2 related issues.";
-		const ImVec2 rev_size(g_medium_font->CalcTextSizeA(g_medium_font->FontSize, FLT_MAX, 0.0f, warning_txt));
 		ImGui::PushFont(g_medium_font);
 		ImGui::SetCursorPos(
-			ImVec2(LayoutScale(10.0f), ImGui::GetWindowHeight() - rev_size.y - LayoutScale(20.0f)));
+			ImVec2(LayoutScale(10.0f), ImGui::GetWindowHeight() - LayoutScale(20.0f)));
 		ImGui::Text(warning_txt);
 		ImGui::PopFont();
 	}
@@ -4385,13 +4392,15 @@ void FullscreenUI::DrawControllerSettingsPage()
 	{
 		DoSaveInputProfile();
 	}
-#ifndef WINRT_XBOX
-	MenuHeading(FSUI_CSTR("Input Sources"));
 
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_COG, "Enable SDL Input Source"),
-		FSUI_CSTR("The SDL input source supports most controllers."), "InputSources", "SDL", true, true, false);
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_WIFI, "SDL DualShock 4 / DualSense Enhanced Mode"),
-		FSUI_CSTR("Provides vibration and LED control support over Bluetooth."), "InputSources", "SDLControllerEnhancedMode", false,
+#ifndef WINRT_XBOX
+	MenuHeading("Input Sources");
+
+#ifdef SDL_BUILD
+	DrawToggleSetting(bsi, ICON_FA_COG " Enable SDL Input Source", "The SDL input source supports most controllers.", "InputSources", "SDL",
+		true, true, false);
+	DrawToggleSetting(bsi, ICON_FA_WIFI " SDL DualShock 4 / DualSense Enhanced Mode",
+		"Provides vibration and LED control support over Bluetooth.", "InputSources", "SDLControllerEnhancedMode", false,
 		bsi->GetBoolValue("InputSources", "SDL", true), false);
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_LIGHTBULB, "SDL DualSense Player LED"),
 		FSUI_CSTR("Enable/Disable the Player LED on DualSense controllers."), "InputSources", "SDLPS5PlayerLED", false,
@@ -4407,9 +4416,10 @@ void FullscreenUI::DrawControllerSettingsPage()
 	DrawToggleSetting(bsi, ICON_FA_COG " SDL Raw Input", "Allow SDL to use raw access to input devices.", "InputSources", "SDLRawInput",
 		false, bsi->GetBoolValue("InputSources", "SDL", true), false);
 #endif
-#if _WIN32 && !WINRT_XBOX
+#ifdef _WIN32
 	DrawToggleSetting(bsi, ICON_FA_COG " Enable XInput Input Source",
 		"The XInput source provides support for XBox 360/XBox One/XBox Series controllers.", "InputSources", "XInput", false, true, false);
+#endif
 #endif
 
 	MenuHeading(FSUI_CSTR("Multitap"));

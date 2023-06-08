@@ -24,7 +24,7 @@ enum class InputSourceType : u32
 	Keyboard,
 	Pointer,
 #ifdef _WIN32
-#if !WINRT_XBOX
+#ifndef WINRT_XBOX
 	DInput,
 #endif
 	XInput,
