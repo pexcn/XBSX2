@@ -1260,7 +1260,7 @@ void FullscreenUI::DrawLandingWindow()
 		ImGui::Image(s_app_icon_texture->GetNativeHandle(), ImVec2(image_size, image_size));
 	}
 
-	const char version_txt[] = "v2.0.2";
+	const char version_txt[] = "v2.0.4";
 	ImGui::PushFont(g_medium_font);
 	ImGui::SetCursorPos(
 		ImVec2(LayoutScale(10.0f), ImGui::GetWindowHeight() - LayoutScale(20.0f)));
@@ -6706,6 +6706,10 @@ void FullscreenUI::DrawAboutWindow()
 									 "This allows you to play PS2 games on your PC, with many additional features and benefits."));
 	if (ImGui::BeginPopupModal("About XBSX2.0", &s_about_window_open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize))
 	{
+		ImGui::TextWrapped(
+			"XBSX2.0 is a fork of PCSX2 developed by SirMangler, TRW and Reverie introducing Xbox/UWP support. Please support the original creators.");
+		ImGui::NewLine();
+
 		ImGui::TextWrapped(
 			"XBSX2.0 is a fork of PCSX2 developed by SirMangler, TRW and Reverie introducing Xbox/UWP support. Please support the original creators.");
 		ImGui::NewLine();
