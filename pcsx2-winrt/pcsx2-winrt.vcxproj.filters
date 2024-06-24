@@ -191,7 +191,6 @@
     <Font Include="resources\fonts\promptfont.otf" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="pcsx2-winrt_TemporaryKey.pfx" />
     <None Include="PropertySheet.props" />
     <None Include="resources\patches.zip">
       <Filter>resources</Filter>
@@ -246,6 +245,7 @@
     </None>
     <None Include="xbsx2_TemporaryKey.pfx" />
     <None Include="packages.config" />
+    <None Include="xbsx2-winrt_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="resources\game_controller_db.txt">

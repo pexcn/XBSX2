@@ -1298,7 +1298,7 @@ void FullscreenUI::DrawLandingWindow()
 			QueueResetFocus();
 		}
 		ImGui::SetCursorPos(ImVec2(10, ImGui::GetWindowSize().y - 30));
-		ImGui::Text("XBSX2.0 is an unofficial fork of PCSX2. Please do not contact PCSX2 for any help with Xbox/XBSX2 related issues.");
+		ImGui::Text("XBSX2 is an unofficial fork of PCSX2. Please do not contact PCSX2 for any help with Xbox/XBSX2 related issues.");
 	}
 	EndHorizontalMenu();
 
@@ -6518,7 +6518,7 @@ void FullscreenUI::DrawGameListSettingsWindow()
 			FSUI_CSTR("Reverses the game list sort order from the default (usually ascending to descending)."), "UI",
 			"FullscreenUIGameSortReverse", false);
 	}
-
+#ifndef WINRT_XBOX
 	MenuHeading(FSUI_CSTR("Cover Settings"));
 	{
 		DrawFolderSetting(bsi, FSUI_ICONSTR(ICON_FA_FOLDER, "Covers Directory"), "Folders", "Covers", EmuFolders::Covers);
@@ -6528,7 +6528,7 @@ void FullscreenUI::DrawGameListSettingsWindow()
 			Host::OnCoverDownloaderOpenRequested();
 		}
 	}
-
+#endif
 	MenuHeading(FSUI_CSTR("Operations"));
 	{
 		if (MenuButton(
@@ -6631,13 +6631,13 @@ void FullscreenUI::DrawAboutWindow()
 {
 	ImGui::SetNextWindowSize(LayoutScale(1000.0f, 580.0f));
 	ImGui::SetNextWindowPos(ImGui::GetIO().DisplaySize * 0.5f, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-	ImGui::OpenPopup("About XBSX2.0");
+	ImGui::OpenPopup("About XBSX2");
 
 	ImGui::PushFont(g_large_font);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, LayoutScale(10.0f));
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, LayoutScale(30.0f, 30.0f));
 
-	if (ImGui::BeginPopupModal("About XBSX2.0", &s_about_window_open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize))
+	if (ImGui::BeginPopupModal("About XBSX2", &s_about_window_open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize))
 	{
 		ImGui::NewLine();
 
@@ -6660,7 +6660,9 @@ void FullscreenUI::DrawAboutWindow()
 
 		ImGui::TextWrapped("Thank you to the PCSX2 team for their hard work on the PCSX2 project.");
 
-		ImGui::TextWrapped("Thank you to worleydl for help with the Achievement Login code");
+		ImGui::TextWrapped("Thank you to worleydl for the Achievement Login code.");
+
+		ImGui::TextWrapped("Thank you to Rockso for remaking the old PCSX2 assets.");
 
 		ImGui::NewLine();
 
@@ -6669,7 +6671,7 @@ void FullscreenUI::DrawAboutWindow()
 		if (ActiveButton(ICON_FA_PERSON_BOOTH "Discord", false))
 			ExitFullscreenAndOpenURL(XBOXEMULATIONHUB_DISCORD_URL);
 
-		if (ActiveButton(ICON_FA_BUG " XBSX2.0 GitHub Repository", false))
+		if (ActiveButton(ICON_FA_BUG " XBSX2 GitHub Repository", false))
 			ExitFullscreenAndOpenURL(XBSX2_GITHUB_URL);
 
 		if (ActiveButton(FSUI_ICONSTR(ICON_FA_NEWSPAPER, "License"), false))
