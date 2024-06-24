@@ -1,0 +1,59 @@
+name: Windows UWP Builds
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - uwp
+
+jobs:
+  # MSBUILD
+  lint_vs_proj_files:
+    name: Lint VS Project Files
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Verify VS Project Files
+        run: .github\workflows\scripts\windows\validate-vs-filters.ps1
+
+  winrt-build-avx2:
+    name: Building WinRT (AVX2)
+    needs: lint_vs_proj_files
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet.exe
+        uses: NuGet/setup-nuget@v2
+        with:
+          nuget-version: latest  
+
+      - name: Download Patches
+        shell: cmd
+        run: |
+          cd bin/resources
+          aria2c -Z "https://github.com/PCSX2/pcsx2_patches/releases/tag/latest/download/patches.zip"
+
+      - name: Download Dependencies
+        shell: cmd
+        run: |
+          aria2c -Z "https://github.com/PCSX2/pcsx2-windows-dependencies/releases/download/latest-windows-dependencies/pcsx2-windows-dependencies.7z"
+      - name: Extract some files
+        run: 7z x pcsx2-windows-dependencies.7z -o"./"
+
+      - name: Build project
+        run: |
+          msbuild PCSX2_qt.sln /m /p:PlatformToolset=v143 /p:Platform=x64 /p:Configuration="Release AVX2" /p:AppxPackageSigningEnabled=true /p:PackageCertificateKeyFile="xbsx2-winrt_TemporaryKey.pfx" /t:restore,build /p:RestorePackagesConfig=true
+      - name: Upload Builds
+        uses: actions/upload-artifact@v4
+        with:
+          name: XBSX2.0 Nightly Build (AVX2)
+          path: AppPackages/xbsx2/
