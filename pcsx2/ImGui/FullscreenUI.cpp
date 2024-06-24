@@ -1292,10 +1292,13 @@ void FullscreenUI::DrawLandingWindow()
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/exit.png"), FSUI_CSTR("Exit"),
 				FSUI_CSTR("This exits the application back to Dev Home.")) ||
 			(!AreAnyDialogsOpen() && WantsToCloseMenu()))
+
 		{
 			s_current_main_window = MainWindowType::Exit;
 			QueueResetFocus();
 		}
+		ImGui::SetCursorPos(ImVec2(10, ImGui::GetWindowSize().y - 30));
+		ImGui::Text("XBSX2.0 is an unofficial fork of PCSX2. Please do not contact PCSX2 for any help with Xbox/XBSX2 related issues.");
 	}
 	EndHorizontalMenu();
 
@@ -1329,8 +1332,6 @@ void FullscreenUI::DrawLandingWindow()
 
 void FullscreenUI::DrawStartGameWindow()
 {
-
-
 	ImVec2 menu_pos, menu_size;
 	DrawLandingTemplate(&menu_pos, &menu_size);
 
@@ -3146,7 +3147,7 @@ void FullscreenUI::DrawInterfaceSettingsPage()
 		FSUI_CSTR("Creates a backup copy of a save state if it already exists when the save is created. The backup copy has a .backup suffix"),
 		"EmuCore", "BackupSavestate", true);
 	if (DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_LIGHTBULB, "Use Light Theme"),
-			FSUI_CSTR("Uses a light coloured theme instead of the default dark theme."), "UI", "UseLightFullscreenUITheme", false))
+			FSUI_CSTR("Uses a light coloured theme instead of the default dark theme if you want to be blind."), "UI", "UseLightFullscreenUITheme", false))
 	{
 		ImGuiFullscreen::SetTheme(bsi->GetBoolValue("UI", "UseLightFullscreenUITheme", false));
 	}
@@ -6662,10 +6663,10 @@ void FullscreenUI::DrawAboutWindow()
 		BeginMenuButtons();
 
 		if (ActiveButton(ICON_FA_PERSON_BOOTH " Discord", false))
-			ExitFullscreenAndOpenURL(PCSX2_DISCORD_URL);
+			ExitFullscreenAndOpenURL(XBOXEMULATIONHUB_DISCORD_URL);
 
 		if (ActiveButton(ICON_FA_BUG " XBSX2.0 GitHub Repository", false))
-			ExitFullscreenAndOpenURL(PCSX2_GITHUB_URL);
+			ExitFullscreenAndOpenURL(XBSX2_GITHUB_URL);
 
 		if (ActiveButton(FSUI_ICONSTR(ICON_FA_NEWSPAPER, "License"), false))
 			ExitFullscreenAndOpenURL(PCSX2_LICENSE_URL);

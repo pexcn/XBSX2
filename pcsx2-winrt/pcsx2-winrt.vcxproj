@@ -199,6 +199,13 @@
     <Image Include="resources\fullscreenui\applications-system.png" />
     <Image Include="resources\fullscreenui\media-cdrom.png" />
     <Image Include="resources\fullscreenui\placeholder.png" />
+    <Image Include="resources\fullscreenui\exit.png" />
+    <Image Include="resources\fullscreenui\game-list.png" />
+    <Image Include="resources\fullscreenui\back-icon.png" />
+    <Image Include="resources\fullscreenui\drive-cdrom.png" />
+    <Image Include="resources\fullscreenui\start-bios.png" />
+    <Image Include="resources\fullscreenui\start-file.png" /> 
+    <Image Include="resources\fullscreenui\no-save.png" />
     <Image Include="resources\icons\AppIconLarge.png" />
     <Image Include="resources\icons\flags\NTSC-B.png" />
     <Image Include="resources\icons\flags\NTSC-C.png" />

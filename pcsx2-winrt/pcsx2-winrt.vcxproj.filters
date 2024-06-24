@@ -42,6 +42,30 @@
     <Image Include="resources\fullscreenui\placeholder.png">
       <Filter>resources\fullscreenui</Filter>
     </Image>
+    <Image Include="resources\fullscreenui\start-bios.png">
+      <Filter>resources\fullscreenui</Filter>
+    </Image>
+    <Image Include="resources\fullscreenui\drive-cdrom.png">
+      <Filter>resources\fullscreenui</Filter>
+    </Image>
+    <Image Include="resources\fullscreenui\exit.png">
+      <Filter>resources\fullscreenui</Filter>
+    </Image>
+    <Image Include="resources\fullscreenui\game-list.png">
+      <Filter>resources\fullscreenui</Filter>
+    </Image>
+    <Image Include="resources\fullscreenui\back-icon.png">
+      <Filter>resources\fullscreenui</Filter>
+    </Image>
+    <Image Include="resources\fullscreenui\start-bios.png">
+      <Filter>resources\fullscreenui</Filter>
+    </Image>
+    <Image Include="resources\fullscreenui\start-file.png">
+      <Filter>resources\fullscreenui</Filter>
+    </Image>
+    <Image Include="resources\fullscreenui\no-save.png">
+      <Filter>resources\fullscreenui</Filter>
+    </Image>
     <Image Include="resources\icons\AppIconLarge.png">
       <Filter>resources\icons</Filter>
     </Image>
