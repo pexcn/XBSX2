@@ -7,6 +7,10 @@
 #include "common/ProgressCallback.h"
 #include "common/SmallString.h"
 
+#ifdef ENABLE_ACHIEVEMENTS
+#include "pcsx2/Achievements.h"
+#endif
+
 #include <ctime>
 #include <string>
 #include <memory>
@@ -25,6 +29,8 @@ namespace FullscreenUI
 	void OpenPauseMenu();
 	bool OpenAchievementsWindow();
 	bool OpenLeaderboardsWindow();
+
+	void OpenAchievementsLoginWindow(Achievements::LoginRequestReason reason);
 
 	// NOTE: Only call from GS thread.
 	bool IsAchievementsWindowOpen();

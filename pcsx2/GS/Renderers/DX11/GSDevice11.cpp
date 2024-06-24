@@ -193,11 +193,11 @@ bool GSDevice11::Create(GSVSyncMode vsync_mode, bool allow_present_throttle)
 	// convert
 
 	D3D11_INPUT_ELEMENT_DESC il_convert[] =
-	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	};
+		{
+			{"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		};
 
 	const std::optional<std::string> convert_hlsl = ReadShaderSource("shaders/dx11/convert.fx");
 	if (!convert_hlsl.has_value())
@@ -765,7 +765,15 @@ bool GSDevice11::CreateSwapChain()
 	else
 	{
 		Console.ErrorFmt("GetParent() on swap chain to get factory failed: {}", Error::CreateHResult(hr).GetDescription());
-	}	
+	}
+
+	hr = m_dxgi_factory->MakeWindowAssociation(window_hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
+	if (FAILED(hr))
+		Console.Warning("MakeWindowAssociation() to disable ALT+ENTER failed");
+#else
+	Console.WriteLn("Creating a %dx%d winrt swap chain", swap_chain_desc.Width, swap_chain_desc.Height);
+	hr = m_dxgi_factory->CreateSwapChainForCoreWindow(m_dev.get(), static_cast<::IUnknown*>(m_window_info.surface_handle), &swap_chain_desc, nullptr, m_swap_chain.put());
+#endif
 
 	if (!CreateSwapChainRTV())
 	{
@@ -1317,7 +1325,6 @@ void GSDevice11::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture*
 	else
 	{
 		ds = GSVector2i(m_window_info.surface_width, m_window_info.surface_height);
-
 	}
 
 	// om
@@ -1338,16 +1345,16 @@ void GSDevice11::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture*
 	const float bottom = 1.0f - dRect.w * 2 / ds.y;
 
 	GSVertexPT1 vertices[] =
-	{
-		{GSVector4(left, top, 0.5f, 1.0f), GSVector2(sRect.x, sRect.y)},
-		{GSVector4(right, top, 0.5f, 1.0f), GSVector2(sRect.z, sRect.y)},
-		{GSVector4(left, bottom, 0.5f, 1.0f), GSVector2(sRect.x, sRect.w)},
-		{GSVector4(right, bottom, 0.5f, 1.0f), GSVector2(sRect.z, sRect.w)},
-	};
+		{
+			{GSVector4(left, top, 0.5f, 1.0f), GSVector2(sRect.x, sRect.y)},
+			{GSVector4(right, top, 0.5f, 1.0f), GSVector2(sRect.z, sRect.y)},
+			{GSVector4(left, bottom, 0.5f, 1.0f), GSVector2(sRect.x, sRect.w)},
+			{GSVector4(right, bottom, 0.5f, 1.0f), GSVector2(sRect.z, sRect.w)},
+		};
 
 
 
-    IASetVertexBuffer(vertices, sizeof(vertices[0]), std::size(vertices));
+	IASetVertexBuffer(vertices, sizeof(vertices[0]), std::size(vertices));
 	IASetInputLayout(m_convert.il.get());
 	IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
@@ -1402,12 +1409,12 @@ void GSDevice11::PresentRect(GSTexture* sTex, const GSVector4& sRect, GSTexture*
 	const float bottom = 1.0f - dRect.w * 2 / ds.y;
 
 	GSVertexPT1 vertices[] =
-	{
-		{GSVector4(left, top, 0.5f, 1.0f), GSVector2(sRect.x, sRect.y)},
-		{GSVector4(right, top, 0.5f, 1.0f), GSVector2(sRect.z, sRect.y)},
-		{GSVector4(left, bottom, 0.5f, 1.0f), GSVector2(sRect.x, sRect.w)},
-		{GSVector4(right, bottom, 0.5f, 1.0f), GSVector2(sRect.z, sRect.w)},
-	};
+		{
+			{GSVector4(left, top, 0.5f, 1.0f), GSVector2(sRect.x, sRect.y)},
+			{GSVector4(right, top, 0.5f, 1.0f), GSVector2(sRect.z, sRect.y)},
+			{GSVector4(left, bottom, 0.5f, 1.0f), GSVector2(sRect.x, sRect.w)},
+			{GSVector4(right, bottom, 0.5f, 1.0f), GSVector2(sRect.z, sRect.w)},
+		};
 
 
 
@@ -1860,12 +1867,11 @@ void GSDevice11::SetupOM(OMDepthStencilSelector dssel, OMBlendSelector bsel, u8 
 		if (dssel.ztst != ZTST_ALWAYS || dssel.zwe)
 		{
 			static const D3D11_COMPARISON_FUNC ztst[] =
-			{
+				{
 					D3D11_COMPARISON_NEVER,
 					D3D11_COMPARISON_ALWAYS,
 					D3D11_COMPARISON_GREATER_EQUAL,
-					D3D11_COMPARISON_GREATER
-			};
+					D3D11_COMPARISON_GREATER};
 
 			dsd.DepthEnable = true;
 			dsd.DepthWriteMask = dssel.zwe ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
@@ -2502,7 +2508,7 @@ D3D_SHADER_MACRO* GSDevice11::ShaderMacro::GetPtr()
 /// Clears things we don't support that can be quietly disabled
 static void preprocessSel(GSDevice11::PSSelector& sel)
 {
-	pxAssert(sel.write_rg  == 0); // Not supported, shouldn't be sent
+	pxAssert(sel.write_rg == 0); // Not supported, shouldn't be sent
 }
 
 void GSDevice11::RenderHW(GSHWDrawConfig& config)
@@ -2528,12 +2534,12 @@ void GSDevice11::RenderHW(GSHWDrawConfig& config)
 		const GSVector4 dst = src * 2.0f - 1.0f;
 
 		GSVertexPT1 vertices[] =
-		{
-			{GSVector4(dst.x, -dst.y, 0.5f, 1.0f), GSVector2(src.x, src.y)},
-			{GSVector4(dst.z, -dst.y, 0.5f, 1.0f), GSVector2(src.z, src.y)},
-			{GSVector4(dst.x, -dst.w, 0.5f, 1.0f), GSVector2(src.x, src.w)},
-			{GSVector4(dst.z, -dst.w, 0.5f, 1.0f), GSVector2(src.z, src.w)},
-		};
+			{
+				{GSVector4(dst.x, -dst.y, 0.5f, 1.0f), GSVector2(src.x, src.y)},
+				{GSVector4(dst.z, -dst.y, 0.5f, 1.0f), GSVector2(src.z, src.y)},
+				{GSVector4(dst.x, -dst.w, 0.5f, 1.0f), GSVector2(src.x, src.w)},
+				{GSVector4(dst.z, -dst.w, 0.5f, 1.0f), GSVector2(src.z, src.w)},
+			};
 
 		SetupDATE(config.rt, config.ds, vertices, config.datm);
 	}
@@ -2590,9 +2596,15 @@ void GSDevice11::RenderHW(GSHWDrawConfig& config)
 	D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
 	switch (config.topology)
 	{
-		case GSHWDrawConfig::Topology::Point:    topology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;    break;
-		case GSHWDrawConfig::Topology::Line:     topology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;     break;
-		case GSHWDrawConfig::Topology::Triangle: topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST; break;
+		case GSHWDrawConfig::Topology::Point:
+			topology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+			break;
+		case GSHWDrawConfig::Topology::Line:
+			topology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+			break;
+		case GSHWDrawConfig::Topology::Triangle:
+			topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			break;
 	}
 	IASetPrimitiveTopology(topology);
 

@@ -13,20 +13,7 @@
 #define NOMINMAX
 #define UNICODE
 #define _UNICODE
-#endif
-
-// Seems to be a bug in VS where this isn't properly applied
-#ifdef WINRT_XBOX
-#define NOMINMAX
-#define UNICODE
-#define _UNICODE
-#endif
-
-// Seems to be a bug in VS where this isn't properly applied
-#ifdef WINRT_XBOX
-#define NOMINMAX
-#define UNICODE
-#define _UNICODE
+#define _M_X86
 #endif
 
 #include "common/Pcsx2Defs.h"

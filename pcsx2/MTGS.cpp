@@ -25,8 +25,8 @@
 #define MTGS_LOG Console.WriteLn
 #else
 #define MTGS_LOG(...) \
-	do                \
-	{                 \
+	do \
+	{ \
 	} while (0)
 #endif
 
@@ -508,12 +508,12 @@ void MTGS::MainLoop()
 						break;
 
 						case Command::AsyncCall:
-							{
-								AsyncCallType* const func = (AsyncCallType*)tag.pointer;
-								(*func)();
-								delete func;
-							}
-							break;
+						{
+							AsyncCallType* const func = (AsyncCallType*)tag.pointer;
+							(*func)();
+							delete func;
+						}
+						break;
 
 						case Command::Freeze:
 						{
@@ -993,8 +993,8 @@ void MTGS::SetSoftwareRendering(bool software, GSInterlaceMode interlace, bool d
 
 	if (display_message)
 	{
-		Host::AddIconOSDMessage("SwitchRenderer", ICON_FA_MAGIC, fmt::format("{} Renderer.",
-			Pcsx2Config::GSOptions::GetRendererName(renderer)), Host::OSD_INFO_DURATION);
+		Host::AddIconOSDMessage("SwitchRenderer", ICON_FA_MAGIC, software ? TRANSLATE_STR("GS", "Switching to Software Renderer...") : TRANSLATE_STR("GS", "Switching to Hardware Renderer..."),
+			Host::OSD_QUICK_DURATION);
 	}
 
 	RunOnGSThread([software, interlace]() {
@@ -1055,7 +1055,7 @@ void Gif_AddCompletedGSPacket(GS_Packet& gsPack, GIF_PATH path)
 	{
 		MTGS::PrepDataPacket(path, gsPack.size / 16);
 		MemCopy_WrappedDest((u128*)&gifUnit.gifPath[path].buffer[gsPack.offset], MTGS::RingBuffer.m_Ring,
-							MTGS::s_packet_writepos, MTGS::RingBufferSize, gsPack.size / 16);
+			MTGS::s_packet_writepos, MTGS::RingBufferSize, gsPack.size / 16);
 		MTGS::SendDataPacket();
 	}
 	else

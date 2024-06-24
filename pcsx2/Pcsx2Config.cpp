@@ -40,9 +40,11 @@ static constexpr FPControlRegister DEFAULT_VU_FP_CONTROL_REGISTER = FPControlReg
 																		.SetRoundMode(FPRoundMode::ChopZero);
 
 Pcsx2Config EmuConfig;
+
 #ifdef WINRT_XBOX
 #include "pcsx2-winrt/UWPUtils.h"
 #endif
+
 const char* SettingInfo::StringDefaultValue() const
 {
 	return default_value ? default_value : "";
@@ -324,7 +326,7 @@ void Pcsx2Config::SpeedhackOptions::LoadSave(SettingsWrapper& wrap)
 	EECycleSkip = std::min(EECycleSkip, MAX_EE_CYCLE_SKIP);
 }
 
- Pcsx2Config::ProfilerOptions::ProfilerOptions()
+Pcsx2Config::ProfilerOptions::ProfilerOptions()
 	: bitset(0xfffffffe)
 {
 }
@@ -585,7 +587,7 @@ const char* Pcsx2Config::GSOptions::GetRendererName(GSRendererType type)
 {
 	switch (type)
 	{
-		// clang-format off
+			// clang-format off
 		case GSRendererType::Auto:  return "Auto";
 		case GSRendererType::DX11:  return "Direct3D 11";
 		case GSRendererType::DX12:  return "Direct3D 12";
@@ -1009,8 +1011,7 @@ bool Pcsx2Config::GSOptions::UseHardwareRenderer() const
 
 static constexpr const std::array s_spu2_sync_mode_names = {
 	"Disabled",
-	"TimeStretch"
-};
+	"TimeStretch"};
 static constexpr const std::array s_spu2_sync_mode_display_names = {
 	TRANSLATE_NOOP("Pcsx2Config", "Disabled (Noisy)"),
 	TRANSLATE_NOOP("Pcsx2Config", "TimeStretch (Recommended)"),
@@ -1095,7 +1096,7 @@ void Pcsx2Config::SPU2Options::LoadSave(SettingsWrapper& wrap)
 		SettingsWrapEntry(DeviceName);
 		StreamParameters.LoadSave(wrap, CURRENT_SETTINGS_SECTION);
 	}
-	}
+}
 
 bool Pcsx2Config::SPU2Options::operator!=(const SPU2Options& right) const
 {
@@ -1322,7 +1323,7 @@ void Pcsx2Config::GamefixOptions::Set(GamefixId id, bool enabled)
 {
 	switch (id)
 	{
-		// clang-format off
+			// clang-format off
 		case Fix_VuAddSub:            VuAddSubHack            = enabled; break;
 		case Fix_FpuMultiply:         FpuMulHack              = enabled; break;
 		case Fix_XGKick:              XgKickHack              = enabled; break;
@@ -1360,7 +1361,7 @@ bool Pcsx2Config::GamefixOptions::Get(GamefixId id) const
 {
 	switch (id)
 	{
-		// clang-format off
+			// clang-format off
 		case Fix_VuAddSub:            return VuAddSubHack;
 		case Fix_FpuMultiply:         return FpuMulHack;
 		case Fix_XGKick:              return XgKickHack;
@@ -1853,7 +1854,10 @@ void EmuFolders::SetAppRoot()
 
 bool EmuFolders::SetResourcesDirectory()
 {
-#ifndef __APPLE__
+#ifdef WINRT_XBOX
+	Resources = "./resources";
+
+#elif !defined(__APPLE__)
 	// On Windows/Linux, these are in the binary directory.
 	Resources = Path::Combine(AppRoot, "resources");
 #else
@@ -1883,21 +1887,21 @@ bool EmuFolders::SetDataDirectory(Error* error)
 {
 	if (!ShouldUsePortableMode())
 	{
+#if defined(WINRT_XBOX)
+		EmuFolders::DataRoot = UWP::GetLocalFolder();
+#elif defined(_WIN32)
+		// On Windows, use My Documents\PCSX2 to match old installs.
+		PWSTR documents_directory;
+		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &documents_directory)))
+		{
+			if (std::wcslen(documents_directory) > 0)
+				DataRoot = Path::Combine(StringUtil::WideStringToUTF8String(documents_directory), "PCSX2");
+			CoTaskMemFree(documents_directory);
+		}
 		DataRoot = AppRoot;
 		return;
 	}
 
-#if defined(WINRT_XBOX)
-	EmuFolders::DataRoot = UWP::GetLocalFolder();
-#elif defined(_WIN32)
-	// On Windows, use My Documents\PCSX2 to match old installs.
-	PWSTR documents_directory;
-	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &documents_directory)))
-	{
-		if (std::wcslen(documents_directory) > 0)
-			DataRoot = Path::Combine(StringUtil::WideStringToUTF8String(documents_directory), "PCSX2");
-		CoTaskMemFree(documents_directory);
-	}
 #elif defined(__linux__) || defined(__FreeBSD__)
 		// Use $XDG_CONFIG_HOME/PCSX2 if it exists.
 		const char* xdg_config_home = getenv("XDG_CONFIG_HOME");

@@ -3,7 +3,9 @@
 
 #include "usb-pad.h"
 #include "USB/qemu-usb/USBinternal.h"
+#ifndef WINRT_XBOX
 #include "USB/usb-pad/usb-pad-sdl-ff.h"
+#endif
 #include "USB/USB.h"
 #include "Host.h"
 #include "StateWrapper.h"
@@ -169,8 +171,7 @@ namespace usb_pad
 					"0", "0", "100", "1", TRANSLATE_NOOP("USB", "%d%%"), nullptr, nullptr, 1.0f},
 				{SettingInfo::Type::StringList, "SteeringCurveExponent", TRANSLATE_NOOP("USB", "Steering Damping"),
 					TRANSLATE_NOOP("USB", "Applies power curve filter to steering axis values. Dampens small inputs."),
-					"Off", nullptr, nullptr, nullptr, nullptr, SteeringCurveExponentOptions}
-			};
+					"Off", nullptr, nullptr, nullptr, nullptr, SteeringCurveExponentOptions}};
 
 			return info;
 		}
@@ -467,7 +468,7 @@ namespace usb_pad
 		const s16 raw_steering = static_cast<s16>(std::lroundf(value * static_cast<float>(steering_range)));
 		const s16 deadzone_offset = static_cast<s16>(std::lroundf(value * static_cast<float>(steering_deadzone)));
 		const s16 deadzone_modified_steering = std::max((raw_steering - steering_deadzone + deadzone_offset), 0);
-		
+
 		if (steering_curve_exponent)
 		{
 			return std::pow(deadzone_modified_steering, steering_curve_exponent + 1) / std::pow(steering_range, steering_curve_exponent);
@@ -609,11 +610,13 @@ namespace usb_pad
 
 	void PadState::OpenFFDevice()
 	{
+#ifndef WINRT_XBOX
 		if (mFFdevName.empty())
 			return;
 
 		mFFdev.reset();
 		mFFdev = SDLFFDevice::Create(mFFdevName);
+#endif
 	}
 
 	static void pad_handle_data(USBDevice* dev, USBPacket* p)

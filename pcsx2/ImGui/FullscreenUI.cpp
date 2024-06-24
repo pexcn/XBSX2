@@ -231,16 +231,20 @@ namespace FullscreenUI
 	static void DrawPauseMenu(MainWindowType type);
 	static void ExitFullscreenAndOpenURL(const std::string_view url);
 	static void CopyTextToClipboard(std::string title, const std::string_view text);
+	static void DrawAchievementsLoginWindow();
 	static void DrawAboutWindow();
 	static void OpenAboutWindow();
 	static void GetStandardSelectionFooterText(SmallStringBase& dest, bool back_instead_of_cancel);
 
 	static MainWindowType s_current_main_window = MainWindowType::None;
 	static PauseSubMenu s_current_pause_submenu = PauseSubMenu::None;
+	static Achievements::LoginRequestReason s_cheeve_login_reason = Achievements::LoginRequestReason::UserInitiated;
+
 	static bool s_initialized = false;
 	static bool s_tried_to_initialize = false;
 	static bool s_pause_menu_was_open = false;
 	static bool s_was_paused_on_quick_menu_open = false;
+	static bool s_achievements_login_open = false;
 	static bool s_about_window_open = false;
 
 	// local copies of the currently-running game
@@ -476,6 +480,7 @@ namespace FullscreenUI
 	//////////////////////////////////////////////////////////////////////////
 	// Achievements
 	//////////////////////////////////////////////////////////////////////////
+	static void ShowAchievementsLoginPopup();
 	static void SwitchToAchievementsWindow();
 	static void SwitchToLeaderboardsWindow();
 } // namespace FullscreenUI
@@ -774,6 +779,7 @@ void FullscreenUI::Shutdown(bool clear_state)
 		s_current_pause_submenu = PauseSubMenu::None;
 		s_pause_menu_was_open = false;
 		s_was_paused_on_quick_menu_open = false;
+		s_achievements_login_open = false;
 		s_about_window_open = false;
 	}
 	s_hotkey_list_cache = {};
@@ -825,6 +831,7 @@ void FullscreenUI::Render()
 		case MainWindowType::Achievements:
 			Achievements::DrawAchievementsWindow();
 			break;
+
 		case MainWindowType::Leaderboards:
 			Achievements::DrawLeaderboardsWindow();
 			break;
@@ -838,6 +845,11 @@ void FullscreenUI::Render()
 			DrawResumeStateSelector();
 		else
 			DrawSaveStateSelector(s_save_state_selector_loading);
+	}
+
+	if (s_achievements_login_open)
+	{
+		DrawAchievementsLoginWindow();
 	}
 
 	if (s_about_window_open)
@@ -1251,31 +1263,14 @@ void FullscreenUI::DrawLandingWindow()
 {
 	ImVec2 menu_pos, menu_size;
 	DrawLandingTemplate(&menu_pos, &menu_size);
-
-	if (BeginFullscreenColumnWindow(0.0f, -710.0f, "logo", UIPrimaryDarkColor))
-	{
-		const float image_size = LayoutScale(700.f);
-		ImGui::SetCursorPos(
-			ImVec2((ImGui::GetWindowWidth() * 0.5f) - (image_size * 0.5f), (ImGui::GetWindowHeight() * 0.5f) - (image_size * 0.5f)));
-		ImGui::Image(s_app_icon_texture->GetNativeHandle(), ImVec2(image_size, image_size));
-	}
-
 	const char version_txt[] = "v2.0.4";
-	ImGui::PushFont(g_medium_font);
-	ImGui::SetCursorPos(
-		ImVec2(LayoutScale(10.0f), ImGui::GetWindowHeight() - LayoutScale(20.0f)));
-	ImGui::Text(version_txt);
-	ImGui::PopFont();
-
-	EndFullscreenColumnWindow();
 
 	if (BeginHorizontalMenu("landing_window", menu_pos, menu_size, 4))
 	{
 		ResetFocusHere();
 
-		BeginMenuButtons(5, 0.5f);
-
-		if (MenuButton(ICON_FA_LIST " Game List", "Launch a game from images scanned from your game directories."))
+		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/game-list.png"), FSUI_CSTR("Game List"),
+				FSUI_CSTR("Launch a game from images scanned from your game directories.")))
 		{
 			SwitchToGameList();
 		}
@@ -1349,9 +1344,10 @@ void FullscreenUI::DrawStartGameWindow()
 			DoStartFile();
 		}
 
-		if (MenuButton(ICON_FA_TOOLBOX " Start BIOS", "Start the console without any disc inserted."))
+		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/drive-cdrom.png"), FSUI_CSTR("Start Disc"),
+				FSUI_CSTR("Start a game from a disc in your PC's DVD drive.")))
 		{
-			DoStartBIOS();
+			DoStartDisc();
 		}
 
 #ifndef WINRT_XBOX
@@ -1360,9 +1356,15 @@ void FullscreenUI::DrawStartGameWindow()
 			DoStartDisc();
 		}
 #endif
-		
+
 		if (MenuButton(ICON_FA_SLIDERS_H " Settings", "Change settings for the emulator."))
 			SwitchToSettings();
+
+		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/start-bios.png"), FSUI_CSTR("Start BIOS"),
+				FSUI_CSTR("Start the console without any disc inserted.")))
+		{
+			DoStartBIOS();
+		}
 
 		// https://www.iconpacks.net/free-icon/arrow-back-3783.html
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/back-icon.png"), FSUI_CSTR("Back"),
@@ -1417,17 +1419,6 @@ void FullscreenUI::DrawExitWindow()
 		{
 			s_current_main_window = MainWindowType::Landing;
 			QueueResetFocus();
-		}
-
-		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/exit.png"), FSUI_CSTR("Exit PCSX2"),
-				FSUI_CSTR("Completely exits the application, returning you to your desktop.")))
-		{
-			DoRequestExit();
-		}
-
-		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/desktop-mode.png"), FSUI_CSTR("Desktop Mode"),
-				FSUI_CSTR("Exits Big Picture mode, returning to the desktop interface.")))
-		{
 			ImVec2 fullscreen_pos;
 
 			if (FloatingButton(
@@ -1447,7 +1438,17 @@ void FullscreenUI::DrawExitWindow()
 #endif
 		}
 
-		EndMenuButtons();
+		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/exit.png"), FSUI_CSTR("Exit PCSX2"),
+				FSUI_CSTR("Completely exits the application, returning you to your desktop.")))
+		{
+			DoRequestExit();
+		}
+
+		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/desktop-mode.png"), FSUI_CSTR("Desktop Mode"),
+				FSUI_CSTR("Exits Big Picture mode, returning to the desktop interface.")))
+		{
+			DoDesktopMode();
+		}
 
 		const char warning_txt[] = "XBSX2.0 is an unofficial fork of PCSX2. Please do not contact PCSX2 for any help with Xbox/XBSX2 related issues.";
 		ImGui::PushFont(g_medium_font);
@@ -3122,30 +3123,26 @@ void FullscreenUI::DrawInterfaceSettingsPage()
 
 	MenuHeading(FSUI_CSTR("Behaviour"));
 
-	
-#ifdef WITH_DISCORD_PRESENCE
-	DrawToggleSetting(bsi, "Enable Discord Presence", "Shows the game you are currently playing as part of your profile on Discord.", "UI",
-		"DiscordPresence", false);
-#endif
-	DrawToggleSetting(bsi, ICON_FA_PAUSE " Pause On Start", "Pauses the emulator when a game is started.", "UI", "StartPaused", false);
-
-#ifndef WINRT_XBOX
-	DrawToggleSetting(bsi, ICON_FA_MAGIC " Inhibit Screensaver",
-		"Prevents the screen saver from activating and the host from sleeping while emulation is running.", "EmuCore", "InhibitScreensaver",
-		true);
-	DrawToggleSetting(bsi, ICON_FA_VIDEO " Pause On Focus Loss",
-		"Pauses the emulator when you minimize the window or switch to another application, and unpauses when you switch back.", "UI",
-		"PauseOnFocusLoss", false);
-#endif
-
-	DrawToggleSetting(bsi, ICON_FA_WINDOW_MAXIMIZE " Pause On Menu",
-		"Pauses the emulator when you open the quick menu, and unpauses when you close it.", "UI", "PauseOnMenu", true);
-	DrawToggleSetting(bsi, ICON_FA_POWER_OFF " Confirm Shutdown",
-		"Determines whether a prompt will be displayed to confirm shutting down the emulator/game when the hotkey is pressed.", "UI",
-		"ConfirmShutdown", true);
-	DrawToggleSetting(bsi, ICON_FA_SAVE " Save State On Shutdown",
-		"Automatically saves the emulator state when powering down or exiting. You can then resume directly from where you left off next "
-		"time.",
+	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_PF_SNOOZE, "Inhibit Screensaver"),
+		FSUI_CSTR("Prevents the screen saver from activating and the host from sleeping while emulation is running."), "EmuCore",
+		"InhibitScreensaver", true);
+	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_USER_CIRCLE, "Enable Discord Presence"),
+		FSUI_CSTR("Shows the game you are currently playing as part of your profile on Discord."), "UI", "DiscordPresence", false);
+	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_PAUSE, "Pause On Start"), FSUI_CSTR("Pauses the emulator when a game is started."), "UI",
+		"StartPaused", false);
+	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_EYE, "Pause On Focus Loss"),
+		FSUI_CSTR("Pauses the emulator when you minimize the window or switch to another application, and unpauses when you switch back."),
+		"UI", "PauseOnFocusLoss", false);
+	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_GAMEPAD, "Pause On Controller Disconnection"),
+		FSUI_CSTR("Pauses the emulator when a controller with bindings is disconnected."), "UI", "PauseOnControllerDisconnection", false);
+	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_LIST_ALT, "Pause On Menu"),
+		FSUI_CSTR("Pauses the emulator when you open the quick menu, and unpauses when you close it."), "UI", "PauseOnMenu", true);
+	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_POWER_OFF, "Confirm Shutdown"),
+		FSUI_CSTR("Determines whether a prompt will be displayed to confirm shutting down the emulator/game when the hotkey is pressed."),
+		"UI", "ConfirmShutdown", true);
+	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_SAVE, "Save State On Shutdown"),
+		FSUI_CSTR("Automatically saves the emulator state when powering down or exiting. You can then resume directly from where you left "
+				  "off next time."),
 		"EmuCore", "SaveStateOnShutdown", false);
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_ARCHIVE, "Create Save State Backups"),
 		FSUI_CSTR("Creates a backup copy of a save state if it already exists when the save is created. The backup copy has a .backup suffix"),
@@ -3170,39 +3167,6 @@ void FullscreenUI::DrawInterfaceSettingsPage()
 		"OsdScale", 200, 100, 500, 25, "%d%%");
 	DrawToggleSetting(bsi, ICON_FA_LIST " Show Messages",
 		"Shows on-screen-display messages when events occur such as save states being created/loaded, screenshots being taken, etc.",
-		"EmuCore/GS", "OsdShowMessages", true);
-	DrawToggleSetting(bsi, ICON_FA_CLOCK " Show Speed",
-		"Shows the current emulation speed of the system in the top-right corner of the display as a percentage.", "EmuCore/GS",
-		"OsdShowSpeed", false);
-	DrawToggleSetting(bsi, ICON_FA_RULER " Show FPS",
-		"Shows the number of video frames (or v-syncs) displayed per second by the system in the top-right corner of the display.",
-		"EmuCore/GS", "OsdShowFPS", false);
-	DrawToggleSetting(bsi, ICON_FA_BATTERY_HALF " Show CPU Usage",
-		"Shows the CPU usage based on threads in the top-right corner of the display.", "EmuCore/GS", "OsdShowCPU", false);
-	DrawToggleSetting(bsi, ICON_FA_SPINNER " Show GPU Usage", "Shows the host's GPU usage in the top-right corner of the display.",
-		"EmuCore/GS", "OsdShowGPU", false);
-	DrawToggleSetting(bsi, ICON_FA_RULER_VERTICAL " Show Resolution",
-		"Shows the resolution the game is rendering at in the top-right corner of the display.", "EmuCore/GS", "OsdShowResolution", false);
-	DrawToggleSetting(bsi, ICON_FA_BARS " Show GS Statistics",
-		"Shows statistics about GS (primitives, draw calls) in the top-right corner of the display.", "EmuCore/GS", "OsdShowGSStats",
-		false);
-	DrawToggleSetting(bsi, ICON_FA_PLAY " Show Status Indicators",
-		"Shows indicators when fast forwarding, pausing, and other abnormal states are active.", "EmuCore/GS", "OsdShowIndicators", true);
-	DrawToggleSetting(bsi, ICON_FA_SLIDERS_H " Show Settings", "Shows the current configuration in the bottom-right corner of the display.",
-		"EmuCore/GS", "OsdShowSettings", false);
-	DrawToggleSetting(bsi, ICON_FA_GAMEPAD " Show Inputs",
-		"Shows the current controller state of the system in the bottom-left corner of the display.", "EmuCore/GS", "OsdShowInputs", false);
-	DrawToggleSetting(bsi, ICON_FA_RULER_HORIZONTAL " Show Frame Times",
-		"Shows a visual history of frame times in the upper-left corner of the display.", "EmuCore/GS", "OsdShowFrameTimes", false);
-	DrawToggleSetting(bsi, ICON_FA_EXCLAMATION_CIRCLE " Warn About Unsafe Settings",
-		"Displays warnings when settings are enabled which may break games.", "EmuCore", "WarnAboutUnsafeSettings", true);
-
-	MenuHeading(FSUI_CSTR("On-Screen Display"));
-	DrawIntSpinBoxSetting(bsi, FSUI_ICONSTR(ICON_FA_SEARCH, "OSD Scale"),
-		FSUI_CSTR("Determines how large the on-screen messages and monitor are."), "EmuCore/GS", "OsdScale", 100, 25, 500, 1, FSUI_CSTR("%d%%"));
-	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_LIST, "Show Messages"),
-		FSUI_CSTR(
-			"Shows on-screen-display messages when events occur such as save states being created/loaded, screenshots being taken, etc."),
 		"EmuCore/GS", "OsdShowMessages", true);
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_TACHOMETER_ALT, "Show Speed"),
 		FSUI_CSTR("Shows the current emulation speed of the system in the top-right corner of the display as a percentage."), "EmuCore/GS",
@@ -3368,11 +3332,11 @@ void FullscreenUI::DrawEmulationSettingsPage()
 
 	MenuHeading(FSUI_CSTR("Speed Control"));
 
-	DrawFloatListSetting(bsi, FSUI_ICONSTR(ICON_FA_PLAY,"Normal Speed"), FSUI_CSTR("Sets the speed when running without fast forwarding."), "Framerate",
+	DrawFloatListSetting(bsi, FSUI_ICONSTR(ICON_FA_PLAY, "Normal Speed"), FSUI_CSTR("Sets the speed when running without fast forwarding."), "Framerate",
 		"NominalScalar", 1.00f, speed_entries, speed_values, std::size(speed_entries), true);
-	DrawFloatListSetting(bsi, FSUI_ICONSTR(ICON_FA_FAST_FORWARD,"Fast Forward Speed"), FSUI_CSTR("Sets the speed when using the fast forward hotkey."), "Framerate",
+	DrawFloatListSetting(bsi, FSUI_ICONSTR(ICON_FA_FAST_FORWARD, "Fast Forward Speed"), FSUI_CSTR("Sets the speed when using the fast forward hotkey."), "Framerate",
 		"TurboScalar", 2.00f, speed_entries, speed_values, std::size(speed_entries), true);
-	DrawFloatListSetting(bsi, FSUI_ICONSTR(ICON_PF_SLOW_MOTION,"Slow Motion Speed"), FSUI_CSTR("Sets the speed when using the slow motion hotkey."), "Framerate",
+	DrawFloatListSetting(bsi, FSUI_ICONSTR(ICON_PF_SLOW_MOTION, "Slow Motion Speed"), FSUI_CSTR("Sets the speed when using the slow motion hotkey."), "Framerate",
 		"SlomoScalar", 0.50f, speed_entries, speed_values, std::size(speed_entries), true);
 
 	MenuHeading(FSUI_CSTR("System Settings"));
@@ -3674,7 +3638,7 @@ void FullscreenUI::DrawGraphicsSettingsPage(SettingsInterface* bsi, bool show_ad
 	BeginMenuButtons();
 
 	MenuHeading(FSUI_CSTR("Renderer"));
-	DrawStringListSetting(bsi, FSUI_ICONSTR(ICON_FA_PAINT_BRUSH,"Renderer"), FSUI_CSTR("Selects the API used to render the emulated GS."), "EmuCore/GS",
+	DrawStringListSetting(bsi, FSUI_ICONSTR(ICON_FA_PAINT_BRUSH, "Renderer"), FSUI_CSTR("Selects the API used to render the emulated GS."), "EmuCore/GS",
 		"Renderer", "-1", s_renderer_names, s_renderer_values, std::size(s_renderer_names), true);
 
 	MenuHeading(FSUI_CSTR("Display"));
@@ -4008,37 +3972,22 @@ void FullscreenUI::DrawGraphicsSettingsPage(SettingsInterface* bsi, bool show_ad
 		DrawToggleSetting(bsi, FSUI_CSTR("Disable Vertex Shader Expand"), FSUI_CSTR("Falls back to the CPU for expanding sprites/lines."),
 			"EmuCore/GS", "DisableVertexShaderExpand", false);
 	}
-	DrawIntListSetting(bsi, "Allow Exclusive Fullscreen",
-		"Overrides the driver's heuristics for enabling exclusive fullscreen, or direct flip/scanout.", "EmuCore/GS",
-		"ExclusiveFullscreenControl", -1, s_generic_options, std::size(s_generic_options), -1,
-		(renderer == GSRendererType::Auto || renderer == GSRendererType::VK));
-	DrawIntListSetting(bsi, "Override Texture Barriers", "Forces texture barrier functionality to the specified value.", "EmuCore/GS",
-		"OverrideTextureBarriers", -1, s_generic_options, std::size(s_generic_options), -1);
-	DrawIntListSetting(bsi, "GS Dump Compression", "Sets the compression algorithm for GS dumps.", "EmuCore/GS", "GSDumpCompression",
-		static_cast<int>(GSDumpCompressionMethod::LZMA), s_gsdump_compression, std::size(s_gsdump_compression));
-	DrawToggleSetting(bsi, "Disable Framebuffer Fetch", "Prevents the usage of framebuffer fetch when supported by host GPU.", "EmuCore/GS",
-		"DisableFramebufferFetch", false);
-	DrawToggleSetting(bsi, "Disable Dual-Source Blending", "Prevents the usage of dual-source blending when supported by host GPU.",
-		"EmuCore/GS", "DisableDualSourceBlend", false);
-	DrawToggleSetting(bsi, "Disable Shader Cache", "Prevents the loading and saving of shaders/pipelines to disk.", "EmuCore/GS",
-		"DisableShaderCache", false);
-	DrawToggleSetting(bsi, "Disable Vertex Shader Expand", "Falls back to the CPU for expanding sprites/lines.", "EmuCore/GS",
-		"DisableVertexShaderExpand", false);
+
 	EndMenuButtons();
 }
 
 void FullscreenUI::DrawAudioSettingsPage()
 {
 	static constexpr const char* synchronization_modes[] = {
-		"TimeStretch (Recommended)",
-		"Async Mix (Breaks some games!)",
-		"None (Audio can skip.)",
+		FSUI_NSTR("TimeStretch (Recommended)"),
+		FSUI_NSTR("Async Mix (Breaks some games!)"),
+		FSUI_NSTR("None (Audio can skip.)"),
 	};
 	static constexpr const char* expansion_modes[] = {
-		"Stereo (None, Default)",
-		"Quadrafonic",
-		"Surround 5.1",
-		"Surround 7.1",
+		FSUI_NSTR("Stereo (None, Default)"),
+		FSUI_NSTR("Quadraphonic"),
+		FSUI_NSTR("Surround 5.1"),
+		FSUI_NSTR("Surround 7.1"),
 	};
 	static constexpr const char* output_entries[] = {
 		"No Sound (Emulate SPU2 only)",
@@ -4051,20 +4000,12 @@ void FullscreenUI::DrawAudioSettingsPage()
 	};
 	static constexpr const char* output_values[] = {
 		"nullout",
-#ifdef SPU2X_CUBEB
 		"cubeb",
-#endif
 #ifdef _WIN32
 		"xaudio2",
 #endif
 	};
-#if defined(SPU2X_CUBEB)
 	static constexpr const char* default_output_module = "cubeb";
-#elif defined(_WIN32)
-	static constexpr const char* default_output_module = "xaudio2";
-#else
-	static constexpr const char* default_output_module = "nullout";
-#endif
 
 	SettingsInterface* bsi = GetEditingSettingsInterface();
 
@@ -4075,7 +4016,7 @@ void FullscreenUI::DrawAudioSettingsPage()
 	DrawIntRangeSetting(bsi, FSUI_ICONSTR(ICON_FA_VOLUME_UP, "Output Volume"),
 		FSUI_CSTR("Controls the volume of the audio played on the host."), "SPU2/Output", "OutputVolume", 100,
 		0, 100, "%d%%");
-	DrawIntRangeSetting(bsi, FSUI_ICONSTR(ICON_FA_FAST_FORWARD,"Fast Forward Volume"),
+	DrawIntRangeSetting(bsi, FSUI_ICONSTR(ICON_FA_FAST_FORWARD, "Fast Forward Volume"),
 		FSUI_CSTR("Controls the volume of the audio played on the host when fast forwarding."), "SPU2/Output",
 		"FastForwardVolume", 100, 0, 100, "%d%%");
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_VOLUME_MUTE, "Mute All Sound"),
@@ -4396,21 +4337,21 @@ void FullscreenUI::DrawControllerSettingsPage()
 #ifndef WINRT_XBOX
 	MenuHeading("Input Sources");
 
-#ifdef SDL_BUILD
-	DrawToggleSetting(bsi, ICON_FA_COG " Enable SDL Input Source", "The SDL input source supports most controllers.", "InputSources", "SDL",
-		true, true, false);
-	DrawToggleSetting(bsi, ICON_FA_WIFI " SDL DualShock 4 / DualSense Enhanced Mode",
-		"Provides vibration and LED control support over Bluetooth.", "InputSources", "SDLControllerEnhancedMode", false,
+	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_COG, "Enable SDL Input Source"),
+		FSUI_CSTR("The SDL input source supports most controllers."), "InputSources", "SDL", true, true, false);
+	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_WIFI, "SDL DualShock 4 / DualSense Enhanced Mode"),
+		FSUI_CSTR("Provides vibration and LED control support over Bluetooth."), "InputSources", "SDLControllerEnhancedMode", false,
 		bsi->GetBoolValue("InputSources", "SDL", true), false);
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_LIGHTBULB, "SDL DualSense Player LED"),
 		FSUI_CSTR("Enable/Disable the Player LED on DualSense controllers."), "InputSources", "SDLPS5PlayerLED", false,
 		bsi->GetBoolValue("InputSources", "SDLControllerEnhancedMode", true), false);
-#ifdef _WIN32 && !WINRT_XBOX
+#ifdef _WIN32
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_COG, "SDL Raw Input"), FSUI_CSTR("Allow SDL to use raw access to input devices."),
 		"InputSources", "SDLRawInput", false, bsi->GetBoolValue("InputSources", "SDL", true), false);
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_COG, "Enable XInput Input Source"),
 		FSUI_CSTR("The XInput source provides support for XBox 360/XBox One/XBox Series controllers."), "InputSources", "XInput", false,
 		true, false);
+#endif
 #endif
 #if defined(SDL_BUILD) && defined(_WIN32)
 	DrawToggleSetting(bsi, ICON_FA_COG " SDL Raw Input", "Allow SDL to use raw access to input devices.", "InputSources", "SDLRawInput",
@@ -4419,7 +4360,6 @@ void FullscreenUI::DrawControllerSettingsPage()
 #ifdef _WIN32
 	DrawToggleSetting(bsi, ICON_FA_COG " Enable XInput Input Source",
 		"The XInput source provides support for XBox 360/XBox One/XBox Series controllers.", "InputSources", "XInput", false, true, false);
-#endif
 #endif
 
 	MenuHeading(FSUI_CSTR("Multitap"));
@@ -6690,7 +6630,7 @@ void FullscreenUI::OpenAboutWindow()
 
 void FullscreenUI::DrawAboutWindow()
 {
-	ImGui::SetNextWindowSize(LayoutScale(1000.0f, 535.0f));
+	ImGui::SetNextWindowSize(LayoutScale(1000.0f, 580.0f));
 	ImGui::SetNextWindowPos(ImGui::GetIO().DisplaySize * 0.5f, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 	ImGui::OpenPopup("About XBSX2.0");
 
@@ -6704,28 +6644,15 @@ void FullscreenUI::DrawAboutWindow()
 									 "PCSX2 is a free and open-source PlayStation 2 (PS2) emulator. Its purpose is to emulate the PS2's hardware, using a "
 									 "combination of MIPS CPU Interpreters, Recompilers and a Virtual Machine which manages hardware states and PS2 system memory. "
 									 "This allows you to play PS2 games on your PC, with many additional features and benefits."));
-	if (ImGui::BeginPopupModal("About XBSX2.0", &s_about_window_open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize))
-	{
-		ImGui::TextWrapped(
-			"XBSX2.0 is a fork of PCSX2 developed by SirMangler, TRW and Reverie introducing Xbox/UWP support. Please support the original creators.");
 		ImGui::NewLine();
 
-		ImGui::TextWrapped(
-			"XBSX2.0 is a fork of PCSX2 developed by SirMangler, TRW and Reverie introducing Xbox/UWP support. Please support the original creators.");
-		ImGui::NewLine();
-
-		ImGui::TextWrapped(
-			"XBSX2.0 is a fork of PCSX2 developed by SirMangler, TRW and Reverie introducing Xbox/UWP support. Please support the original creators.");
-		ImGui::NewLine();
+		ImGui::TextWrapped("Version: %s", GIT_REV);
 
 		ImGui::TextWrapped(
 			"PCSX2 is a free and open-source PlayStation 2 (PS2) emulator. Its purpose is to emulate the PS2's hardware, using a "
 			"combination of MIPS CPU Interpreters, Recompilers and a Virtual Machine which manages hardware states and PS2 system memory. "
 			"This allows you to play PS2 games on your PC, with many additional features and benefits.");
 
-		ImGui::NewLine();
-
-		ImGui::TextWrapped("Version: %s", GIT_REV);
 		ImGui::NewLine();
 
 		ImGui::TextWrapped("%s",
@@ -6763,6 +6690,87 @@ void FullscreenUI::DrawAboutWindow()
 	ImGui::PopStyleVar(2);
 	ImGui::PopFont();
 }
+
+void FullscreenUI::OpenAchievementsLoginWindow(Achievements::LoginRequestReason reason)
+{
+	s_achievements_login_open = true;
+	s_cheeve_login_reason = reason;
+}
+
+void FullscreenUI::DrawAchievementsLoginWindow()
+{
+	ImGui::SetNextWindowSize(LayoutScale(1000.0f, 535.0f));
+	ImGui::SetNextWindowPos(ImGui::GetIO().DisplaySize * 0.5f, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+	ImGui::OpenPopup("Achievements Login");
+
+	ImGui::PushFont(g_large_font);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, LayoutScale(10.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, LayoutScale(20.0f, 20.0f));
+
+	// Thank you to @worleydl for the logic to the Login part
+	if (ImGui::BeginPopupModal("Achievements Login", &s_achievements_login_open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize))
+	{
+		ImGui::TextWrapped("%s", FSUI_CSTR(
+									 "Enter your credentials for RetroAchievements.  Your password will not be stored, only an access token to the service."));
+		ImGui::NewLine();
+
+		if (s_cheeve_login_reason == Achievements::LoginRequestReason::TokenInvalid)
+		{
+			ImGui::TextWrapped("%s", FSUI_CSTR("Your token has expired, please login again."));
+			ImGui::NewLine();
+		}
+
+		static char username[256] = {};
+		ImGui::TextUnformatted(FSUI_CSTR("Username: "));
+		ImGui::InputText("##user", username, sizeof(username));
+		ImGui::NewLine();
+
+		static char password[256] = {};
+		ImGui::TextUnformatted(FSUI_CSTR("Password: "));
+		ImGui::InputText("##pass", password, sizeof(password));
+		ImGui::NewLine();
+
+
+		BeginMenuButtons();
+
+		if (ActiveButton(FSUI_CSTR("Login"), false))
+		{
+			Host::RunOnCPUThread([username = std::move(username), password = std::move(password)]() {
+				Error error;
+				const bool result = Achievements::Login(username, password, &error);
+
+				if (!result)
+				{
+					ShowToast(std::string(), FSUI_CSTR("Login failed"));
+					return;
+				}
+
+				ImGui::CloseCurrentPopup();
+				s_achievements_login_open = false;
+			});
+		}
+
+		if (ActiveButton(FSUI_CSTR("Cancel"), false))
+		{
+			if (s_cheeve_login_reason == Achievements::LoginRequestReason::TokenInvalid)
+			{
+				if (VMManager::HasValidVM() && !Achievements::HasActiveGame())
+					Achievements::DisableHardcoreMode();
+			}
+
+			ImGui::CloseCurrentPopup();
+			s_achievements_login_open = false;
+		}
+		EndMenuButtons();
+
+		ImGui::EndPopup();
+	}
+
+	ImGui::PopStyleVar(2);
+	ImGui::PopFont();
+}
+
+
 
 bool FullscreenUI::OpenAchievementsWindow()
 {

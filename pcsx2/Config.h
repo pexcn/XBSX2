@@ -661,17 +661,9 @@ struct Pcsx2Config
 					EnableAudioCaptureParameters : 1;
 			};
 		};
-
+		
 		int VsyncQueueSize = 2;
 
-		// forces the MTGS to execute tags/tasks in fully blocking/synchronous
-		// style. Useful for debugging potential bugs in the MTGS pipeline.
-		bool SynchronousMTGS = false;
-		bool FrameLimitEnable = true;
-
-		VsyncMode VsyncEnable = VsyncMode::On;
-
-		float LimitScalar = 1.0f;
 		float FramerateNTSC = DEFAULT_FRAME_RATE_NTSC;
 		float FrameratePAL = DEFAULT_FRAME_RATE_PAL;
 
@@ -863,6 +855,7 @@ struct Pcsx2Config
 		bool EthEnable{true};
 		NetApi EthApi{NetApi::Sockets};
 		std::string EthDevice{"Auto"};
+		bool EthLogDHCP{false};
 		bool EthLogDNS{false};
 
 		bool InterceptDHCP{false};

@@ -117,21 +117,21 @@ DEFINE_HOTKEY("OpenAchievementsList", TRANSLATE_NOOP("Hotkeys", "System"),
 		if (!pressed && CanPause())
 			FullscreenUI::OpenAchievementsWindow();
 	})
+#ifndef WINRT_XBOX
 DEFINE_HOTKEY("OpenLeaderboardsList", TRANSLATE_NOOP("Hotkeys", "System"),
 	TRANSLATE_NOOP("Hotkeys", "Open Leaderboards List"), [](s32 pressed) {
 		if (!pressed && CanPause())
 			FullscreenUI::OpenLeaderboardsWindow();
 	})
 #endif
-		DEFINE_HOTKEY(
-			"TogglePause", TRANSLATE_NOOP("Hotkeys", "System"), TRANSLATE_NOOP("Hotkeys", "Toggle Pause"), [](s32 pressed) {
-				if (!pressed && VMManager::HasValidVM())
-					Host::RunOnCPUThread([]() { VMManager::SetPaused(VMManager::GetState() != VMState::Paused); });
-	})
-#define DEFINE_HOTKEY_LOADSTATE_X(slotnum) \
-	DEFINE_HOTKEY("LoadStateFromSlot" #slotnum, "Save States", "Load State From Slot " #slotnum, [](s32 pressed) { \
-		if (!pressed) \
-			Host::RunOnCPUThread([]() { HotkeyLoadStateSlot(slotnum); }); \
+DEFINE_HOTKEY("TogglePause", TRANSLATE_NOOP("Hotkeys", "System"), TRANSLATE_NOOP("Hotkeys", "Toggle Pause"), [](s32 pressed) {
+	if (!pressed && VMManager::HasValidVM())
+		Host::RunOnCPUThread([]() { VMManager::SetPaused(VMManager::GetState() != VMState::Paused); });
+})
+DEFINE_HOTKEY("ToggleFullscreen", TRANSLATE_NOOP("Hotkeys", "System"), TRANSLATE_NOOP("Hotkeys", "Toggle Fullscreen"),
+	[](s32 pressed) {
+		if (!pressed)
+			Host::SetFullscreen(!Host::IsFullscreen());
 	})
 DEFINE_HOTKEY("ToggleFrameLimit", TRANSLATE_NOOP("Hotkeys", "System"), TRANSLATE_NOOP("Hotkeys", "Toggle Frame Limit"),
 	[](s32 pressed) {
@@ -233,12 +233,12 @@ DEFINE_HOTKEY("NextSaveStateSlot", TRANSLATE_NOOP("Hotkeys", "Save States"),
 DEFINE_HOTKEY("SaveStateToSlot", TRANSLATE_NOOP("Hotkeys", "Save States"),
 	TRANSLATE_NOOP("Hotkeys", "Save State To Selected Slot"), [](s32 pressed) {
 		if (!pressed && VMManager::HasValidVM())
-			Host::RunOnCPUThread([]() { VMManager::SaveStateToSlot(s_current_save_slot); });
+			Host::RunOnCPUThread([]() { SaveStateSelectorUI::SaveCurrentSlot(); });
 	})
-		DEFINE_HOTKEY("LoadStateFromSlot", TRANSLATE_NOOP("Hotkeys", "Save States"),
-			TRANSLATE_NOOP("Hotkeys", "Load State From Selected Slot"), [](s32 pressed) {
+DEFINE_HOTKEY("LoadStateFromSlot", TRANSLATE_NOOP("Hotkeys", "Save States"),
+	TRANSLATE_NOOP("Hotkeys", "Load State From Selected Slot"), [](s32 pressed) {
 		if (!pressed && VMManager::HasValidVM())
-			Host::RunOnCPUThread([]() { VMManager::LoadStateFromSlot(s_current_save_slot); });
+			Host::RunOnCPUThread([]() { SaveStateSelectorUI::LoadCurrentSlot(); });
 	})
 
 #define DEFINE_HOTKEY_SAVESTATE_X(slotnum, title) \
