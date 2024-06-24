@@ -58,7 +58,7 @@ struct fail_type__ {};
 #endif // _DOXYGEN_
 
 
-#if defined(NDEBUG) || defined(C4_NO_DEBUG_BREAK)
+/* #if defined (NDEBUG) || defined(C4_NO_DEBUG_BREAK)
 #   define C4_DEBUG_BREAK()
 #else
 #   ifdef __clang__
@@ -80,7 +80,9 @@ struct fail_type__ {};
 #       pragma clang diagnostic pop
 #   elif defined(__GNUC__)
 #   endif
-#endif
+#endif */
+
+#define C4_DEBUG_BREAK()
 
 namespace c4 {
 C4CORE_EXPORT bool is_debugger_attached();

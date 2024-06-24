@@ -1290,7 +1290,7 @@ void FullscreenUI::DrawLandingWindow()
 		}
 
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/exit.png"), FSUI_CSTR("Exit"),
-				FSUI_CSTR("Return to desktop mode, or exit the application.")) ||
+				FSUI_CSTR("This exits the application back to Dev Home.")) ||
 			(!AreAnyDialogsOpen() && WantsToCloseMenu()))
 		{
 			s_current_main_window = MainWindowType::Exit;
@@ -1329,6 +1329,8 @@ void FullscreenUI::DrawLandingWindow()
 
 void FullscreenUI::DrawStartGameWindow()
 {
+
+
 	ImVec2 menu_pos, menu_size;
 	DrawLandingTemplate(&menu_pos, &menu_size);
 
@@ -1343,13 +1345,13 @@ void FullscreenUI::DrawStartGameWindow()
 		{
 			DoStartFile();
 		}
-
+#ifndef WINRT_XBOX
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/drive-cdrom.png"), FSUI_CSTR("Start Disc"),
 				FSUI_CSTR("Start a game from a disc in your PC's DVD drive.")))
 		{
 			DoStartDisc();
 		}
-
+#endif
 #ifndef WINRT_XBOX
 		if (MenuButton(ICON_FA_COMPACT_DISC " Start Disc", "Start a game from a disc in your PC's DVD drive."))
 		{
@@ -1439,23 +1441,17 @@ void FullscreenUI::DrawExitWindow()
 		}
 
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/exit.png"), FSUI_CSTR("Exit PCSX2"),
-				FSUI_CSTR("Completely exits the application, returning you to your desktop.")))
+				FSUI_CSTR("Completely exits the application, returning you to Dev Home.")))
 		{
 			DoRequestExit();
 		}
-
+#ifndef WINRT_XBOX
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/desktop-mode.png"), FSUI_CSTR("Desktop Mode"),
 				FSUI_CSTR("Exits Big Picture mode, returning to the desktop interface.")))
 		{
 			DoDesktopMode();
 		}
-
-		const char warning_txt[] = "XBSX2.0 is an unofficial fork of PCSX2. Please do not contact PCSX2 for any help with Xbox/XBSX2 related issues.";
-		ImGui::PushFont(g_medium_font);
-		ImGui::SetCursorPos(
-			ImVec2(LayoutScale(10.0f), ImGui::GetWindowHeight() - LayoutScale(20.0f)));
-		ImGui::Text(warning_txt);
-		ImGui::PopFont();
+#endif
 	}
 	EndHorizontalMenu();
 
@@ -3126,8 +3122,10 @@ void FullscreenUI::DrawInterfaceSettingsPage()
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_PF_SNOOZE, "Inhibit Screensaver"),
 		FSUI_CSTR("Prevents the screen saver from activating and the host from sleeping while emulation is running."), "EmuCore",
 		"InhibitScreensaver", true);
+#ifndef WINRT_XBOX	
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_USER_CIRCLE, "Enable Discord Presence"),
 		FSUI_CSTR("Shows the game you are currently playing as part of your profile on Discord."), "UI", "DiscordPresence", false);
+#endif	
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_PAUSE, "Pause On Start"), FSUI_CSTR("Pauses the emulator when a game is started."), "UI",
 		"StartPaused", false);
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_EYE, "Pause On Focus Loss"),
