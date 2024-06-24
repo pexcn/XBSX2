@@ -47,10 +47,8 @@ jobs:
         run: |
           aria2c -Z "https://github.com/PCSX2/pcsx2-windows-dependencies/releases/download/latest-windows-dependencies/pcsx2-windows-dependencies.7z"
       - name: Extract some files
-        run: 7z x pcsx2-windows-dependencies.7z
+        run: 7z x pcsx2-windows-dependencies.7z -o"./"
 
-      - name: Move files to root
-        run: mv pcsx2-windows-dependencies/deps/* .
       - name: Build project
         run: |
           msbuild PCSX2_qt.sln /m /p:PlatformToolset=v143 /p:Platform=x64 /p:Configuration="Release AVX2" /p:AppxPackageSigningEnabled=true /p:PackageCertificateKeyFile="xbsx2-winrt_TemporaryKey.pfx" /t:restore,build /p:RestorePackagesConfig=true
