@@ -106,7 +106,7 @@
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <AdditionalLibraryDirectories>$(SolutionDir)pcsx2\pcsx2core\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>setupapi.lib;comctl32.lib;ws2_32.lib;shlwapi.lib;winmm.lib;rpcrt4.lib;xinputuap.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>setupapi.lib;comctl32.lib;ws2_32.lib;shlwapi.lib;winmm.lib;rpcrt4.lib;xinputuap.lib;$(SolutionDir)deps\lib\freetype.lib;$(SolutionDir)deps\lib\libpng16.lib;$(SolutionDir)deps\lib\libjpeg.lib;$(SolutionDir)deps\lib\libwebp.lib;$(SolutionDir)deps\lib\lx4.lib;$(SolutionDir)deps\lib\SDL2.lib;$(SolutionDir)deps\lib\zlib.lib;$(SolutionDir)deps\lib\zstd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
