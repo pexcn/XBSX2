@@ -1,4 +1,4 @@
-# PCSX2 UWP
+# XBSX2 UWP
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/1f7c0d75fec74d6daa6adb084e5b4f71)](https://app.codacy.com/gh/PCSX2/pcsx2/dashboard?utm_source=github.com&utm_medium=referral&utm_content=SternXD/pcsx2&utm_campaign=Badge_Grade)
 [![Discord Server](https://img.shields.io/discord/309643527816609793?color=%235CA8FA&label=Xbox%20Emulation%20Hub%20Discord&logo=discord&logoColor=white)]([https://discord.com/invite/TCz3t9k](https://discord.gg/xbox-emulation-hub-1007582798598647889))
