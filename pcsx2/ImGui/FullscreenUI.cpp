@@ -1263,7 +1263,7 @@ void FullscreenUI::DrawLandingWindow()
 {
 	ImVec2 menu_pos, menu_size;
 	DrawLandingTemplate(&menu_pos, &menu_size);
-	const char version_txt[] = "v2.0.4";
+	const char version_txt[] = "v2.0.6";
 
 	if (BeginHorizontalMenu("landing_window", menu_pos, menu_size, 4))
 	{
@@ -1369,7 +1369,6 @@ void FullscreenUI::DrawStartGameWindow()
 			DoStartBIOS();
 		}
 
-		// https://www.iconpacks.net/free-icon/arrow-back-3783.html
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/back-icon.png"), FSUI_CSTR("Back"),
 				FSUI_CSTR("Return to the previous menu.")) ||
 			(!AreAnyDialogsOpen() && WantsToCloseMenu()))
@@ -1415,7 +1414,6 @@ void FullscreenUI::DrawExitWindow()
 	{
 		ResetFocusHere();
 
-		// https://www.iconpacks.net/free-icon/arrow-back-3783.html
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/back-icon.png"), FSUI_CSTR("Back"),
 				FSUI_CSTR("Return to the previous menu.")) ||
 			WantsToCloseMenu())
@@ -6644,7 +6642,7 @@ void FullscreenUI::DrawAboutWindow()
 		ImGui::TextWrapped("Version: %s", GIT_REV);
 
 		ImGui::TextWrapped(
-			"PCSX2 is a free and open-source PlayStation 2 (PS2) emulator. Its purpose is to emulate the PS2's hardware, using a "
+			"XBSX2 is a free and open-source PlayStation 2 (PS2) emulator. Its purpose is to emulate the PS2's hardware, using a "
 			"combination of MIPS CPU Interpreters, Recompilers and a Virtual Machine which manages hardware states and PS2 system memory. "
 			"This allows you to play PS2 games on your PC, with many additional features and benefits.");
 
