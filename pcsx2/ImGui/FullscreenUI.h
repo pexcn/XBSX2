@@ -32,6 +32,8 @@ namespace FullscreenUI
 
 	void OpenAchievementsLoginWindow(Achievements::LoginRequestReason reason);
 
+	void DrawCreateMemoryCardWindow();
+
 	// NOTE: Only call from GS thread.
 	bool IsAchievementsWindowOpen();
 	bool IsLeaderboardsWindowOpen();

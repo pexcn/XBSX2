@@ -53,6 +53,7 @@
 #endif
 #include "3rdparty/imgui/include/imgui.h"
 
+
 using namespace winrt;
 
 using namespace Windows;
@@ -127,11 +128,6 @@ void Host::LoadSettings(SettingsInterface& si, std::unique_lock<std::mutex>& loc
 
 void Host::CheckForSettingsChanges(const Pcsx2Config& old_config)
 {
-}
-
-void Host::OnCreateMemoryCardOpenRequested()
-{
-	// No-op?
 }
 
 bool Host::RequestResetSettings(bool folders, bool core, bool controllers, bool hotkeys, bool ui)

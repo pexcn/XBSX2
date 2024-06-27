@@ -4158,7 +4158,6 @@ void FullscreenUI::DrawMemoryCardSettingsPage()
 	EndMenuButtons();
 }
 
-// Grabbed from commit 05bed05 of the PCSX2 repository.
 void FullscreenUI::DrawCreateMemoryCardWindow()
 {
 	ImGui::SetNextWindowSize(LayoutScale(700.0f, 0.0f));
