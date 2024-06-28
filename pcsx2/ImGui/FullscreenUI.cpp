@@ -1263,7 +1263,7 @@ void FullscreenUI::DrawLandingWindow()
 {
 	ImVec2 menu_pos, menu_size;
 	DrawLandingTemplate(&menu_pos, &menu_size);
-	const char version_txt[] = "v2.0.6";
+	const char version_txt[] = "v2.0.7";
 
 	if (BeginHorizontalMenu("landing_window", menu_pos, menu_size, 4))
 	{
@@ -1359,9 +1359,6 @@ void FullscreenUI::DrawStartGameWindow()
 			DoStartDisc();
 		}
 #endif
-
-		if (MenuButton(ICON_FA_SLIDERS_H " Settings", "Change settings for the emulator."))
-			SwitchToSettings();
 
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/start-bios.png"), FSUI_CSTR("Start BIOS"),
 				FSUI_CSTR("Start the console without any disc inserted.")))
