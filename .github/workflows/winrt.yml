@@ -49,14 +49,14 @@ jobs:
       - name: Extract some files
         run: 7z x pcsx2-windows-dependencies.7z -o"./"
 
-      - name: Setup certificate
-        run: |
-          echo ${{ secrets.XBSX2_TEMP_CERT_PFX }} | base64 -d > xbsx2-winrt_TemporaryKey.pfx
-
       - name: Build project
         run: |
-          msbuild PCSX2_qt.sln /m /p:PlatformToolset=v143 /p:Platform=x64 /p:Configuration="Release AVX2" /p:AppxPackageSigningEnabled=true /p:PackageCertificateKeyFile="xbsx2-winrt_TemporaryKey.pfx" /t:restore,build /p:RestorePackagesConfig=true
-
+          msbuild PCSX2_qt.sln /m /p:PlatformToolset=v143 /p:Platform=x64 /p:Configuration="Release AVX2" /p:AppxPackageSigningEnabled=false /t:restore,build /p:RestorePackagesConfig=true
+      
+      - name: Sign app
+        run: signtool sign /f pcsx2-winrt\xbsx2_TemporaryKey.pfx /p '${{ secrets.SIGN_CERT_PWD }}' /v /fd SHA256 AppPackages\xbsx2\*appx
+        if: github.repository == 'SternXD/XBSX2' && github.event_name == 'push'      
+    
       - name: Upload Builds
         uses: actions/upload-artifact@v4
         with:
