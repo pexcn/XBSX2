@@ -1262,7 +1262,8 @@ void FullscreenUI::DrawLandingWindow()
 	ImVec2 menu_pos, menu_size;
 	DrawLandingTemplate(&menu_pos, &menu_size);
 	const char version_txt[] = "v2.0.7";
-
+	ImGui::PushStyleColor(ImGuiCol_Text, UIBackgroundTextColor);
+	
 	if (BeginHorizontalMenu("landing_window", menu_pos, menu_size, 4))
 	{
 		ResetFocusHere();
@@ -1426,6 +1427,7 @@ void FullscreenUI::DrawExitWindow()
 				ToggleTheme();
 
 
+			if (FloatingButton(ICON_FA_WINDOW_CLOSE, fullscreen_pos.x, 0.0f, -1.0f, -1.0f, -1.0f, 0.0f, true, g_large_font, &fullscreen_pos))
 			if (FloatingButton(ICON_FA_WINDOW_CLOSE, fullscreen_pos.x, 0.0f, -1.0f, -1.0f, -1.0f, 0.0f, true, g_large_font, &fullscreen_pos))
 				DoRequestExit();
 
