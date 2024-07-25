@@ -1345,6 +1345,7 @@ void FullscreenUI::DrawStartGameWindow()
 		{
 			DoStartFile();
 		}
+// Not applicable to UWP, so I’m conditionally excluding it with an #ifndef directive.
 #ifndef WINRT_XBOX
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/drive-cdrom.png"), FSUI_CSTR("Start Disc"),
 				FSUI_CSTR("Start a game from a disc in your PC's DVD drive.")))
