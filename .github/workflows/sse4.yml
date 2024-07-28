@@ -60,7 +60,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: unencrypted-appx
-        path: "AppPackages/xbsx2_${{ steps.extract_version.outputs.version }}_x64_Test/xbsx2_${{ steps.extract_version.outputs.version }}_x64.appx"
+        path: "D:\a\\XBSX2\\XBSX2\\AppPackages\\xbsx2\\xbsx2_${{ steps.extract_version.outputs.version }}_x64_Test\\xbsx2_${{ steps.extract_version.outputs.version }}_x64.appx"
 
     - name: Upload encrypted APPX
       uses: actions/upload-artifact@v4
