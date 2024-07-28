@@ -1,4 +1,4 @@
-name: Build UWP Package
+name: WinRT SSE4, AVX2 Builds 
 on:
   push:
     branches:
@@ -56,8 +56,16 @@ jobs:
     - name: Build the project
       run: msbuild PCSX2_qt.sln /m /p:PlatformToolset=v143 /t:Restore,Rebuild /p:Configuration="${{ matrix.configuration }}" /p:Platform=x64 /t:restore,build /p:RestorePackagesConfig=true
   
-    - name: Upload APPX file
+    - name: Upload APPX file (SSE4)
+      if: matrix.configuration == 'Release'
       uses: actions/upload-artifact@v4
       with:
         name: appx-${{ matrix.configuration }}
         path: "AppPackages\\xbsx2\\xbsx2_${{ steps.extract_version.outputs.version }}_x64_Test\\xbsx2_${{ steps.extract_version.outputs.version }}_x64.appx"
+        
+    - name: Upload APPX file (AVX2)
+      if: matrix.configuration == 'Release AVX2'
+      uses: actions/upload-artifact@v4
+      with:
+        name: appx-${{ matrix.configuration }}
+        path: "AppPackages\\xbsx2\\xbsx2_${{ steps.extract_version.outputs.version }}_x64_Release AVX2_Test\\xbsx2_${{ steps.extract_version.outputs.version }}_x64_Release AVX2.appx"
