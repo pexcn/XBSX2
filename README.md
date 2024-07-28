@@ -10,3 +10,9 @@ XBSX2 is a free and open-source PlayStation 2 (PS2) emulator. Its purpose is to 
 We recommend to use an Xbox Series S or Xbox Series X with XBSX2 but you can however play a limited set of games on Xbox One, Xbox One S, and Xbox One X.
 
 Please note that a BIOS dump from a legitimately-owned PS2 console is required to use the emulator. For more information, visit [this page](https://pcsx2.net/docs/setup/gather/#how-to-dump-your-ps2-bios)
+
+## Building
+
+* Visual Studio 2022 with the UWP tools installed
+* [PCSX2 Patches](https://github.com/PCSX2/pcsx2_patches/releases/tag/latest/)
+* [PCSX2 Dependencies](https://github.com/PCSX2/pcsx2-windows-dependencies/releases/tag/latest-windows-dependencies)
