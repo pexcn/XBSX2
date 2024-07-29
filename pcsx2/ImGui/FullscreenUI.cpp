@@ -6740,7 +6740,7 @@ void FullscreenUI::DrawAboutWindow()
 	{
 		ImGui::NewLine();
 
-		ImGui::TextWrapped("Version: %s (Git: %s)", APP_VERSION, GIT_REV);
+		ImGui::TextWrapped(FSUI_CSTR("Version: %s (Git: %s)", APP_VERSION, GIT_REV));
 
 		ImGui::TextWrapped(
 			"XBSX2 is a free and open-source PlayStation 2 (PS2) emulator. Its purpose is to emulate the PS2's hardware, using a "
