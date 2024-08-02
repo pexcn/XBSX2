@@ -1055,6 +1055,8 @@ static void HotkeyToggleOSD()
 {
 	GSConfig.OsdShowSettings ^= EmuConfig.GS.OsdShowSettings;
 	GSConfig.OsdShowInputs ^= EmuConfig.GS.OsdShowInputs;
+	GSConfig.OsdShowInputRec ^= EmuConfig.GS.OsdShowInputRec;
+	GSConfig.OsdShowVideoCapture ^= EmuConfig.GS.OsdShowVideoCapture;
 
 	GSConfig.OsdMessagesPos =
 		GSConfig.OsdMessagesPos == OsdOverlayPos::None ? EmuConfig.GS.OsdMessagesPos : OsdOverlayPos::None;
