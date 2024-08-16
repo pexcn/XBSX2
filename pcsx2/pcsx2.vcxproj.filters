@@ -1179,10 +1179,7 @@
     <ClCompile Include="USB\usb-mic\usb-headset.cpp">
       <Filter>System\Ps2\USB\usb-mic</Filter>
     </ClCompile>
-    <ClCompile Include="USB\usb-mic\usb-mic-logitech.cpp">
-      <Filter>System\Ps2\USB\usb-mic</Filter>
-    </ClCompile>
-    <ClCompile Include="USB\usb-mic\usb-mic-singstar.cpp">
+    <ClCompile Include="USB\usb-mic\usb-mic.cpp">
       <Filter>System\Ps2\USB\usb-mic</Filter>
     </ClCompile>
     <ClCompile Include="USB\usb-hid\usb-hid.cpp">
@@ -2128,7 +2125,7 @@
     <ClInclude Include="USB\usb-mic\usb-headset.h">
       <Filter>System\Ps2\USB\usb-mic</Filter>
     </ClInclude>
-    <ClInclude Include="USB\usb-mic\usb-mic-singstar.h">
+    <ClInclude Include="USB\usb-mic\usb-mic.h">
       <Filter>System\Ps2\USB\usb-mic</Filter>
     </ClInclude>
     <ClInclude Include="USB\usb-mic\audio.h">
