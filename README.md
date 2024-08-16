@@ -16,3 +16,10 @@ Please note that a BIOS dump from a legitimately-owned PS2 console is required t
 * Visual Studio 2022 with the UWP tools installed
 * [PCSX2 Patches](https://github.com/PCSX2/pcsx2_patches/releases/tag/latest/)
 * [PCSX2 Dependencies](https://github.com/PCSX2/pcsx2-windows-dependencies/releases/tag/latest-windows-dependencies)
+
+## Credits
+
+* PCSX2 For making the best PS2 emulator.
+* SirMangler for porting PCSX2 to UWP.
+* worleydl for the achievement code.
+* Rockso for the Assets.
