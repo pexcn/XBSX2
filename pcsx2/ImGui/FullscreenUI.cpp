@@ -1345,7 +1345,7 @@ void FullscreenUI::DrawStartGameWindow()
 		{
 			DoStartFile();
 		}
-// Not applicable to UWP, so I’m conditionally excluding it with an #ifndef directive.
+// Not applicable to UWP, so I'm conditionally excluding it with an #ifndef directive.
 #ifndef WINRT_XBOX
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/drive-cdrom.png"), FSUI_CSTR("Start Disc"),
 				FSUI_CSTR("Start a game from a disc in your PC's DVD drive.")))
@@ -1442,6 +1442,7 @@ void FullscreenUI::DrawExitWindow()
 		{
 			DoRequestExit();
 		}
+// We don't need this on UWP so it's conditionally excluded with an #ifndef directive.
 #ifndef WINRT_XBOX
 		if (HorizontalMenuItem(GetCachedTexture("fullscreenui/desktop-mode.png"), FSUI_CSTR("Desktop Mode"),
 				FSUI_CSTR("Exits Big Picture mode, returning to the desktop interface.")))
@@ -3151,6 +3152,7 @@ void FullscreenUI::DrawInterfaceSettingsPage()
 		ImGuiFullscreen::SetTheme(bsi->GetBoolValue("UI", "UseLightFullscreenUITheme", false));
 	}
 
+	// We are already in Fullscreen so why do we need this setting? We can't change it anyway on UWP.
 #ifndef WINRT_XBOX
 	MenuHeading("Game Display");
 	DrawToggleSetting(bsi, ICON_FA_TV " Start Fullscreen", "Automatically switches to fullscreen mode when the program is started.", "UI",
@@ -4179,7 +4181,7 @@ void FullscreenUI::DrawMemoryCardSettingsPage()
 	EndMenuButtons();
 }
 
-// Grabbed from commit 05bed05 of the PCSX2 repository.
+// Grabbed from commit 05bed05 of the PCSX2 repository. This is the latest commit that has the old memory card settings. Before they made it link to the Qt dialog.
 void FullscreenUI::DrawCreateMemoryCardWindow()
 {
 	ImGui::SetNextWindowSize(LayoutScale(700.0f, 0.0f));
@@ -4442,6 +4444,7 @@ void FullscreenUI::DrawControllerSettingsPage()
 		DoSaveInputProfile();
 	}
 
+	// We don't need any of the other input sources so the others were #ifnded out.
 #ifndef WINRT_XBOX
 	MenuHeading("Input Sources");
 
@@ -6627,6 +6630,7 @@ void FullscreenUI::DrawGameListSettingsWindow()
 			FSUI_CSTR("Reverses the game list sort order from the default (usually ascending to descending)."), "UI",
 			"FullscreenUIGameSortReverse", false);
 	}
+	// We don't have an implementation for this yet.
 #ifndef WINRT_XBOX
 	MenuHeading(FSUI_CSTR("Cover Settings"));
 	{
@@ -6821,7 +6825,7 @@ void FullscreenUI::DrawAchievementsLoginWindow()
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, LayoutScale(10.0f));
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, LayoutScale(20.0f, 20.0f));
 
-	// Thank you to @worleydl for the logic to the Login part
+	// Thank you to @worleydl for the logic to the Achievements Login code.
 	if (ImGui::BeginPopupModal("Achievements Login", &s_achievements_login_open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize))
 	{
 		ImGui::TextWrapped("%s", FSUI_CSTR(
