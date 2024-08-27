@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2002-2024 PCSX2 Dev Team
-// SPDX-License-Identifier: GPL-3.0+
+// SPDX-License-Identifier: LGPL-3.0+
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
@@ -1261,7 +1261,7 @@ void FullscreenUI::DrawLandingWindow()
 {
 	ImVec2 menu_pos, menu_size;
 	DrawLandingTemplate(&menu_pos, &menu_size);
-	const char version_txt[] = "v2.0.8";
+	const char version_txt[] = "v2.0.8.1";
 	ImGui::PushStyleColor(ImGuiCol_Text, UIBackgroundTextColor);
 	
 	if (BeginHorizontalMenu("landing_window", menu_pos, menu_size, 4))
@@ -6740,7 +6740,7 @@ void FullscreenUI::DrawAboutWindow()
 	{
 		ImGui::NewLine();
 
-		ImGui::TextWrapped("Version: %s", GIT_REV);
+		ImGui::TextWrapped("Version: %s (Git: %s)", APP_VERSION, GIT_REV);
 
 		ImGui::TextWrapped(
 			"XBSX2 is a free and open-source PlayStation 2 (PS2) emulator. Its purpose is to emulate the PS2's hardware, using a "
