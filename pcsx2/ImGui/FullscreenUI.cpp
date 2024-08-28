@@ -1313,7 +1313,9 @@ void FullscreenUI::DrawLandingWindow()
 	if (IsGamepadInputSource())
 	{
 		SetFullscreenFooterText(std::array{std::make_pair(ICON_PF_BURGER_MENU, FSUI_VSTR("About")),
+			#ifndef WINRT_XBOX
 			std::make_pair(ICON_PF_BUTTON_X, FSUI_VSTR("Toggle Fullscreen")),
+			#endif
 			std::make_pair(ICON_PF_XBOX_DPAD_LEFT_RIGHT, FSUI_VSTR("Navigate")),
 			std::make_pair(ICON_PF_BUTTON_A, FSUI_VSTR("Select")),
 			std::make_pair(ICON_PF_BUTTON_B, FSUI_VSTR("Exit"))});
@@ -1322,7 +1324,9 @@ void FullscreenUI::DrawLandingWindow()
 	{
 		SetFullscreenFooterText(std::array{
 			std::make_pair(ICON_PF_F1, FSUI_VSTR("About")),
+			#ifndef WINRT_XBOX
 			std::make_pair(ICON_PF_F11, FSUI_VSTR("Toggle Fullscreen")),
+			#endif
 			std::make_pair(ICON_PF_ARROW_LEFT ICON_PF_ARROW_RIGHT, FSUI_VSTR("Navigate")),
 			std::make_pair(ICON_PF_ENTER, FSUI_VSTR("Select")), std::make_pair(ICON_PF_ESC, FSUI_VSTR("Exit"))});
 	}
@@ -4440,23 +4444,12 @@ void FullscreenUI::DrawControllerSettingsPage()
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_LIGHTBULB, "SDL DualSense Player LED"),
 		FSUI_CSTR("Enable/Disable the Player LED on DualSense controllers."), "InputSources", "SDLPS5PlayerLED", false,
 		bsi->GetBoolValue("InputSources", "SDLControllerEnhancedMode", true), false);
-#ifdef _WIN32
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_COG, "SDL Raw Input"), FSUI_CSTR("Allow SDL to use raw access to input devices."),
 		"InputSources", "SDLRawInput", false, bsi->GetBoolValue("InputSources", "SDL", true), false);
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_COG, "Enable XInput Input Source"),
 		FSUI_CSTR("The XInput source provides support for XBox 360/XBox One/XBox Series controllers."), "InputSources", "XInput", false,
 		true, false);
 #endif
-#endif
-#if defined(SDL_BUILD) && defined(_WIN32)
-	DrawToggleSetting(bsi, ICON_FA_COG " SDL Raw Input", "Allow SDL to use raw access to input devices.", "InputSources", "SDLRawInput",
-		false, bsi->GetBoolValue("InputSources", "SDL", true), false);
-#endif
-#ifdef _WIN32
-	DrawToggleSetting(bsi, ICON_FA_COG " Enable XInput Input Source",
-		"The XInput source provides support for XBox 360/XBox One/XBox Series controllers.", "InputSources", "XInput", false, true, false);
-#endif
-
 	MenuHeading(FSUI_CSTR("Multitap"));
 	DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_PLUS_SQUARE, "Enable Console Port 1 Multitap"),
 		FSUI_CSTR("Enables an additional three controller slots. Not supported in all games."), "Pad", "MultitapPort1", false, true, false);
